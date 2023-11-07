@@ -21,10 +21,9 @@ int main() {
   char cmd[100];
   sprintf(cmd, "himalaya list -w %d 2>&1", col - 1);
   FILE *pipe = popen(cmd, "r");
-  //FILE *pipe = stdin;
+  
   if (pipe == NULL) {
     endwin();
-    printf("Boom");
     perror("Error calling himalaya. Is it installed?");
     exit(1);
   }
