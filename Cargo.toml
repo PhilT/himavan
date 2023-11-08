@@ -10,4 +10,4 @@ ncurses = "5.101.0"
 
 [[bin]]
 name = "himavan"
-path = "main.rs"
+path = "src/main.rs"
