@@ -6,8 +6,8 @@
 #include <ctype.h>
 
 #define BUFFER_SIZE 2000
-#define COLOR_CURRENT -1
 #define LIST "himalaya list -f %s -w %d 2>&1"
+#define COLOR_CURRENT -1
 #define RED 1
 #define GREEN 2
 #define BLUE 3
@@ -18,17 +18,16 @@ bool starts_with(char* str, char* sub) {
 }
 
 void sub(char* str, int position, char* dest) {
-  int fields[5];
-  fields[0] = 0;
+  char* fields[5];
+  fields[0] = str;
   int next = 1;
   int i = 0;
 
   for(; i < strlen(str); i ++) {
     if (starts_with(&str[i], "│")) {
-      fields[next++] = i + strlen("│");
+      fields[next++] = str + i + strlen("│");
     }
   }
-  fields[4] = i;
 
   FILE *f = fopen("himavan.log", "w");
   for(i = 0; i < 5; i ++) {
