@@ -138,19 +138,31 @@ fn main() {
 
     // Render current row
     i = 0;
-    wmove(stdscr(), i as i32 + 1, 0);
-    putline(&data[i], true);
 
     // Get user input
     loop {
+        wmove(stdscr(), i as i32 + 1, 0);
+        putline(&data[i], true);
         refresh();
 
         match char::from_u32(getch() as u32) {
             Some('q') => break,
-            Some('j') => i += 1,
-            Some('k') => i -= 1,
+            Some('j') => {
+                if i < data.len() - 1 {
+                    wmove(stdscr(), i as i32 + 1, 0);
+                    putline(&data[i], false);
+                    i += 1;
+                }
+            },
+            Some('k') => {
+                if i > 0 {
+                    wmove(stdscr(), i as i32 + 1, 0);
+                    putline(&data[i], false);
+                    i -= 1;
+                }
+            },
             Some('\n') => break,
-            _ => todo!(),
+            _ => {},
         }
     }
     endwin();
