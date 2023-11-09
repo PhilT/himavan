@@ -11,3 +11,6 @@ ncurses = "5.101.0"
 [[bin]]
 name = "himavan"
 path = "src/main.rs"
+
+[profile.release]
+panic = 'abort'

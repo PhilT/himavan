@@ -1,6 +1,5 @@
 extern crate ncurses;
 use ncurses::*;
-use core::str::Split;
 
 pub static COLOR_CURRENT: i16 = -1;
 pub static RED: i16 = 1;
@@ -20,6 +19,7 @@ pub static BLACK_ON_BLACK: i16 = 16;
 const FIELD_COUNT: usize = 5;
 const HEADER_ROW: i32 = 2;
 pub const FIRST_EMAIL_ROW: i32 = 3;
+pub const STATUS_LINE: i32 = 1;
 
 pub struct Email {
     pub id: String,
@@ -55,23 +55,40 @@ pub fn teardown() {
     endwin();
 }
 
-pub fn putline(email: &Email, highlight: bool) {
+pub fn putline(email: &Email, highlight: bool, columns: &Vec<i32>) {
+    if email.flags.contains("✷") {
+        attron(A_BOLD());
+    } else {
+        attroff(A_BOLD());
+    }
+
+    putfield("", BLACK, highlight);
+    wipe_line();
+
     putfield(&email.id, RED, highlight);
+
+    wmove(stdscr(), curr_y(), columns[0]);
     putfield("│", BLACK, highlight);
     putfield(&email.flags, WHITE, highlight);
+
+    wmove(stdscr(), curr_y(), columns[1]);
     putfield("│", BLACK, highlight);
     putfield(&email.subject, GREEN, highlight);
+
+    wmove(stdscr(), curr_y(), columns[2]);
     putfield("│", BLACK, highlight);
     putfield(&email.from, BLUE, highlight);
+
+    wmove(stdscr(), curr_y(), columns[3]);
     putfield("│", BLACK, highlight);
     putfield(&email.date, YELLOW, highlight);
 }
 
-pub fn render_headings(fields: Split<'_, &str>) {
+pub fn render_headings(fields: Vec<String>) {
     let mut x = 0;
 
     attron(A_UNDERLINE() | A_BOLD());
-    for (i, field) in fields.enumerate() {
+    for (i, field) in fields.iter().enumerate() {
         attron(COLOR_PAIR(WHITE));
         mvprintw(HEADER_ROW, x, field);
         x += 1 + field.len() as i32;
@@ -83,15 +100,38 @@ pub fn render_headings(fields: Split<'_, &str>) {
     attroff(A_UNDERLINE() | A_BOLD());
 }
 
-////////////////////////////////////////////////////////////////////////////////
-/// private
-
-fn putfield(field: &str, color: i16, highlight: bool) {
+pub fn color(color: i16, highlight: bool) {
     if highlight {
         attron(COLOR_PAIR(color + 10));
     } else {
         attron(COLOR_PAIR(color));
     }
+}
+
+pub fn putfield(field: &str, c: i16, highlight: bool) {
+    color(c, highlight);
     addstr(field);
 }
 
+pub fn wipe_line() {
+    let (x, y) = pos();
+    addstr(&std::iter::repeat(" ").take(COLS() as usize).collect::<String>());
+    wmove(stdscr(), y, x);
+}
+
+pub fn curr_x() -> i32 {
+    let (x, _) = pos();
+    x
+}
+
+pub fn curr_y() -> i32 {
+    let (_, y) = pos();
+    y
+}
+
+pub fn pos() -> (i32, i32) {
+    let mut y = 0;
+    let mut x = 0;
+    getyx(stdscr(), &mut y, &mut x);
+    (x, y)
+}
