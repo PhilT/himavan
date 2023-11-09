@@ -1,5 +1,6 @@
 extern crate ncurses;
 use std::process::Command;
+use std::process::ExitStatus;
 use ncurses::*;
 use core::str::Split;
 
@@ -11,16 +12,16 @@ fn render_list(data: &Vec<Email>, columns: &Vec<i32>) {
         wmove(stdscr(), i as i32 + screen::FIRST_EMAIL_ROW, 0);
         screen::putline(email, false, &columns);
     }
+    screen::wipe_line();
 }
 
-fn delete_email(email: &Email) -> String {
+fn delete_email(email: &Email) -> (ExitStatus, String) {
     let output = Command::new("himalaya")
         .args(["delete", "-f", "Inbox", &email.id])
         .output()
-        .expect("Could not run himalaya command. Is it installed?")
-        .stdout;
+        .expect("Could not run himalaya command. Is it installed?");
 
-    String::from_utf8_lossy(&output).to_string()
+    (output.status, String::from_utf8_lossy(&output.stdout).to_string())
 }
 
 fn lines_to_emails(lines: Split<'_, &str>) -> Vec<Email> {
@@ -108,11 +109,16 @@ fn main() {
                 }
             },
             Some('D') => {
-                let response = delete_email(&emails[curr_email]);
-                (_, emails) = fetch_emails();
-                render_list(&emails, &columns);
+                let (status, response) = delete_email(&emails[curr_email]);
                 wmove(stdscr(), screen::STATUS_LINE, 0);
-                screen::putfield(&response, screen::GREEN, false);
+                if status.success() {
+                    emails.remove(curr_email);
+                    screen::putfield(&response, screen::GREEN, false);
+                    render_list(&emails, &columns);
+                } else {
+                    screen::putfield("Failed to delete email!", screen::RED, false);
+                }
+                //(_, emails) = fetch_emails();
             }
             Some('\n') => break,
             _ => {},

@@ -82,6 +82,8 @@ pub fn putline(email: &Email, highlight: bool, columns: &Vec<i32>) {
     wmove(stdscr(), curr_y(), columns[3]);
     putfield("│", BLACK, highlight);
     putfield(&email.date, YELLOW, highlight);
+
+    attroff(A_BOLD());
 }
 
 pub fn render_headings(fields: Vec<String>) {
