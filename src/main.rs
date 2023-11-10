@@ -52,8 +52,8 @@ fn lines_to_emails(lines: Split<'_, &str>) -> Vec<Email> {
     data
 }
 
-fn fetch_emails() -> (Vec<String>, Vec<Email>) {
-    let (_status, response) = mail::list(COLS(), LINES() - screen::FIRST_EMAIL_ROW);
+fn fetch_emails(folder: &str) -> (Vec<String>, Vec<Email>) {
+    let (_status, response) = mail::list(folder, COLS(), LINES() - screen::FIRST_EMAIL_ROW);
 
     let mut lines = response.split("\n");
     lines.next();
@@ -61,7 +61,7 @@ fn fetch_emails() -> (Vec<String>, Vec<Email>) {
     let headings = 
         lines
         .next()
-        .map(|line| line.split("│"))
+        .map(|line| line.split(mail::SEPARATOR))
         .expect("No response from himalaya process")
         .map(str::to_string)
         .collect();
@@ -84,8 +84,10 @@ fn main() {
     setlocale(LcCategory::all, "");
     screen::setup();
 
-    // This needs to store the headings (or discard them?!)
-    let (headings, mut emails) = fetch_emails();
+    let (_, folders) = mail::folders();
+    screen::render_folders(&folders, 0);
+
+    let (headings, mut emails) = fetch_emails("INBOX");
     let columns = columns_from(&headings);
     screen::render_headings(&headings);
 
@@ -94,6 +96,7 @@ fn main() {
 
     // Get user input
     let mut curr_email = 0;
+    let mut curr_folder = 0;
     loop {
         wmove(stdscr(), curr_email as i32 + screen::FIRST_EMAIL_ROW, 0);
         render_email(&emails[curr_email], true, &columns);
@@ -120,8 +123,26 @@ fn main() {
                     curr_email -= 1;
                 }
             },
+            Some('h') => {
+                if curr_folder > 0 {
+                    curr_email = 0;
+                    curr_folder -= 1;
+                    screen::render_folders(&folders, curr_folder);
+                    (_, emails) = fetch_emails(&folders[curr_folder]);
+                    render_list(&emails, &columns);
+                }
+            },
+            Some('l') => {
+                if curr_folder < folders.len() - 1 {
+                    curr_email = 0;
+                    curr_folder += 1;
+                    screen::render_folders(&folders, curr_folder);
+                    (_, emails) = fetch_emails(&folders[curr_folder]);
+                    render_list(&emails, &columns);
+                }
+            },
             Some('D') => {
-                let (status, response) = mail::delete(&emails[curr_email].id);
+                let (status, response) = mail::delete(&emails[curr_email].id, &folders[curr_folder]);
                 wmove(stdscr(), screen::STATUS_LINE, 0);
                 if status.success() {
                     emails.remove(curr_email);
@@ -132,7 +153,7 @@ fn main() {
                 }
             }
             Some('\n') => {
-                let (status, response) = mail::read(&emails[curr_email].id);
+                let (status, response) = mail::read(&emails[curr_email].id, &folders[curr_folder]);
                 if status.success() {
                     wmove(stdscr(), screen::HEADER_ROW, 0);
                     screen::putfield(&response, screen::WHITE, false);

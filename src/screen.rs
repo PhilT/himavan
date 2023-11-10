@@ -68,6 +68,24 @@ pub fn putline(fields: [String; FIELD_COUNT], highlight: bool, columns: &Vec<i32
     attroff(A_BOLD());
 }
 
+pub fn render_folders(folders: &Vec<String>, curr_folder: usize) {
+    wmove(stdscr(), 0, 0);
+    for (i, folder) in folders.iter().enumerate() {
+        let (color, highlight) =
+            if i == curr_folder {
+                attron(A_BOLD());
+                (WHITE, true)
+            } else {
+                attroff(A_BOLD());
+                (BLUE, false)
+            };
+        let folder = format!(" {} ", folder);
+        putfield(&folder, color, highlight);
+        wmove(stdscr(), 0, curr_x() + 1);
+    }
+    attroff(A_BOLD());
+}
+
 pub fn render_headings(fields: &Vec<String>) {
     let mut x = 0;
 
