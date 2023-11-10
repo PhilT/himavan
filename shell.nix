@@ -3,7 +3,8 @@ with import <nixpkgs> {};
 mkShell {
   name = "ncurses";
   packages = [
-    rustup
     ncurses
+    rustup
+    rust-analyzer
   ];
 }

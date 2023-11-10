@@ -4,12 +4,30 @@ use core::str::Split;
 
 pub mod screen;
 pub mod mail;
-use crate::screen::Email;
+
+pub struct Email {
+    pub id: String,
+    pub flags: String,
+    pub subject: String,
+    pub from: String,
+    pub date: String,
+}
+
+fn render_email(email: &Email, highlight: bool, columns: &Vec<i32>) {
+    let fields = [
+        email.id.clone(),
+        email.flags.clone(),
+        email.subject.clone(),
+        email.from.clone(),
+        email.date.clone(),
+    ];
+    screen::putline(fields, highlight, &columns);
+}
 
 fn render_list(data: &Vec<Email>, columns: &Vec<i32>) {
     for (i, email) in data.iter().enumerate() {
         wmove(stdscr(), i as i32 + screen::FIRST_EMAIL_ROW, 0);
-        screen::putline(email, false, &columns);
+        render_email(email, false, &columns);
     }
     for y in (data.len() as i32)..(LINES()) {
         wmove(stdscr(), y, 0);
@@ -35,7 +53,7 @@ fn lines_to_emails(lines: Split<'_, &str>) -> Vec<Email> {
 }
 
 fn fetch_emails() -> (Vec<String>, Vec<Email>) {
-    let (status, response) = mail::list(COLS());
+    let (_status, response) = mail::list(COLS());
 
     let mut lines = response.split("\n");
     lines.next();
@@ -72,7 +90,7 @@ fn main() {
     let mut curr_email = 0;
     loop {
         wmove(stdscr(), curr_email as i32 + screen::FIRST_EMAIL_ROW, 0);
-        screen::putline(&emails[curr_email], true, &columns);
+        render_email(&emails[curr_email], true, &columns);
         refresh();
 
         let ch = getch();
@@ -85,14 +103,14 @@ fn main() {
             Some('j') => {
                 if curr_email < emails.len() - 1 {
                     wmove(stdscr(), curr_email as i32 + screen::FIRST_EMAIL_ROW, 0);
-                    screen::putline(&emails[curr_email], false, &columns);
+                    render_email(&emails[curr_email], false, &columns);
                     curr_email += 1;
                 }
             },
             Some('k') => {
                 if curr_email > 0 {
                     wmove(stdscr(), curr_email as i32 + screen::FIRST_EMAIL_ROW, 0);
-                    screen::putline(&emails[curr_email], false, &columns);
+                    render_email(&emails[curr_email], false, &columns);
                     curr_email -= 1;
                 }
             },

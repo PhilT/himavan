@@ -21,15 +21,6 @@ pub const STATUS_LINE: i32 = 1;
 pub const HEADER_ROW: i32 = 2;
 pub const FIRST_EMAIL_ROW: i32 = 3;
 
-//TODO: Rename to Envelope
-pub struct Email {
-    pub id: String,
-    pub flags: String,
-    pub subject: String,
-    pub from: String,
-    pub date: String,
-}
-
 pub fn setup() {
   initscr();
   noecho();
@@ -56,8 +47,8 @@ pub fn teardown() {
     endwin();
 }
 
-pub fn putline(email: &Email, highlight: bool, columns: &Vec<i32>) {
-    if email.flags.contains("✷") {
+pub fn putline(fields: [String; FIELD_COUNT], highlight: bool, columns: &Vec<i32>) {
+    if fields[1].contains("✷") {
         attron(A_BOLD());
     } else {
         attroff(A_BOLD());
@@ -66,23 +57,23 @@ pub fn putline(email: &Email, highlight: bool, columns: &Vec<i32>) {
     putfield("", BLACK, highlight);
     wipe_line();
 
-    putfield(&email.id, RED, highlight);
+    putfield(&fields[0], RED, highlight);
 
     wmove(stdscr(), curr_y(), columns[0]);
     putfield("│", BLACK, highlight);
-    putfield(&email.flags, WHITE, highlight);
+    putfield(&fields[1], WHITE, highlight);
 
     wmove(stdscr(), curr_y(), columns[1]);
     putfield("│", BLACK, highlight);
-    putfield(&email.subject, GREEN, highlight);
+    putfield(&fields[2], GREEN, highlight);
 
     wmove(stdscr(), curr_y(), columns[2]);
     putfield("│", BLACK, highlight);
-    putfield(&email.from, BLUE, highlight);
+    putfield(&fields[3], BLUE, highlight);
 
     wmove(stdscr(), curr_y(), columns[3]);
     putfield("│", BLACK, highlight);
-    putfield(&email.date, YELLOW, highlight);
+    putfield(&fields[4], YELLOW, highlight);
 
     attroff(A_BOLD());
 }
