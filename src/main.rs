@@ -1,10 +1,9 @@
 extern crate ncurses;
-use std::process::Command;
-use std::process::ExitStatus;
 use ncurses::*;
 use core::str::Split;
 
 pub mod screen;
+pub mod mail;
 use crate::screen::Email;
 
 fn render_list(data: &Vec<Email>, columns: &Vec<i32>) {
@@ -12,16 +11,10 @@ fn render_list(data: &Vec<Email>, columns: &Vec<i32>) {
         wmove(stdscr(), i as i32 + screen::FIRST_EMAIL_ROW, 0);
         screen::putline(email, false, &columns);
     }
-    screen::wipe_line();
-}
-
-fn delete_email(email: &Email) -> (ExitStatus, String) {
-    let output = Command::new("himalaya")
-        .args(["delete", "-f", "Inbox", &email.id])
-        .output()
-        .expect("Could not run himalaya command. Is it installed?");
-
-    (output.status, String::from_utf8_lossy(&output.stdout).to_string())
+    for y in (data.len() as i32)..(LINES()) {
+        wmove(stdscr(), y, 0);
+        screen::wipe_line();
+    }
 }
 
 fn lines_to_emails(lines: Split<'_, &str>) -> Vec<Email> {
@@ -42,14 +35,9 @@ fn lines_to_emails(lines: Split<'_, &str>) -> Vec<Email> {
 }
 
 fn fetch_emails() -> (Vec<String>, Vec<Email>) {
-    let output = Command::new("himalaya")
-        .args(["list", "-f", "Inbox", "-w", &COLS().to_string()])
-        .output()
-        .expect("Could not run himalaya command. Is it installed?")
-        .stdout;
+    let (status, response) = mail::list(COLS());
 
-    let binding = String::from_utf8_lossy(&output);
-    let mut lines = binding.split("\n");
+    let mut lines = response.split("\n");
     lines.next();
 
     let headings = 
@@ -75,7 +63,7 @@ fn main() {
     // This needs to store the headings (or discard them?!)
     let (headings, mut emails) = fetch_emails();
     let columns = columns_from(&headings);
-    screen::render_headings(headings);
+    screen::render_headings(&headings);
 
     // Initial render of rows
     render_list(&emails, &columns);
@@ -109,7 +97,7 @@ fn main() {
                 }
             },
             Some('D') => {
-                let (status, response) = delete_email(&emails[curr_email]);
+                let (status, response) = mail::delete(&emails[curr_email].id);
                 wmove(stdscr(), screen::STATUS_LINE, 0);
                 if status.success() {
                     emails.remove(curr_email);
@@ -118,9 +106,21 @@ fn main() {
                 } else {
                     screen::putfield("Failed to delete email!", screen::RED, false);
                 }
-                //(_, emails) = fetch_emails();
             }
-            Some('\n') => break,
+            Some('\n') => {
+                let (status, response) = mail::read(&emails[curr_email].id);
+                if status.success() {
+                    wmove(stdscr(), screen::HEADER_ROW, 0);
+                    screen::putfield(&response, screen::WHITE, false);
+                    getch();
+
+                    wmove(stdscr(), screen::HEADER_ROW, 0);
+                    screen::render_headings(&headings);
+                    render_list(&emails, &columns);
+                } else {
+                    screen::putfield("Failed to read email!", screen::RED, false);
+                }
+            },
             _ => {},
         }
     }

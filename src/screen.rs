@@ -17,10 +17,11 @@ pub static WHITE_ON_BLACK: i16 = 15;
 pub static BLACK_ON_BLACK: i16 = 16;
 
 const FIELD_COUNT: usize = 5;
-const HEADER_ROW: i32 = 2;
-pub const FIRST_EMAIL_ROW: i32 = 3;
 pub const STATUS_LINE: i32 = 1;
+pub const HEADER_ROW: i32 = 2;
+pub const FIRST_EMAIL_ROW: i32 = 3;
 
+//TODO: Rename to Envelope
 pub struct Email {
     pub id: String,
     pub flags: String,
@@ -86,7 +87,7 @@ pub fn putline(email: &Email, highlight: bool, columns: &Vec<i32>) {
     attroff(A_BOLD());
 }
 
-pub fn render_headings(fields: Vec<String>) {
+pub fn render_headings(fields: &Vec<String>) {
     let mut x = 0;
 
     attron(A_UNDERLINE() | A_BOLD());
