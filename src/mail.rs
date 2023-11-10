@@ -1,8 +1,8 @@
 use std::process::Command;
 use std::process::ExitStatus;
 
-pub fn list(width: i32) -> (ExitStatus, String) {
-    run("list", "Inbox", vec![], vec!["-w", &width.to_string()])
+pub fn list(width: i32, limit: i32) -> (ExitStatus, String) {
+    run("list", "Inbox", vec![], vec!["-w", &width.to_string(), "-s", &limit.to_string()])
 }
 pub fn read(id: &str) -> (ExitStatus, String) {
     run("read", "Inbox", vec![id], vec![])

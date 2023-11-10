@@ -53,7 +53,7 @@ fn lines_to_emails(lines: Split<'_, &str>) -> Vec<Email> {
 }
 
 fn fetch_emails() -> (Vec<String>, Vec<Email>) {
-    let (_status, response) = mail::list(COLS());
+    let (_status, response) = mail::list(COLS(), LINES() - screen::FIRST_EMAIL_ROW);
 
     let mut lines = response.split("\n");
     lines.next();
