@@ -47,6 +47,7 @@ pub fn teardown() {
     endwin();
 }
 
+static COLORS: [i16; FIELD_COUNT] = [RED, WHITE, GREEN, BLUE, YELLOW];
 pub fn putline(fields: [String; FIELD_COUNT], highlight: bool, columns: &Vec<i32>) {
     if fields[1].contains("✷") {
         attron(A_BOLD());
@@ -57,23 +58,12 @@ pub fn putline(fields: [String; FIELD_COUNT], highlight: bool, columns: &Vec<i32
     putfield("", BLACK, highlight);
     wipe_line();
 
-    putfield(&fields[0], RED, highlight);
+    for i in 0..FIELD_COUNT {
+        wmove(stdscr(), curr_y(), columns[i]);
+        if i > 0 { putfield("│", BLACK, highlight); }
 
-    wmove(stdscr(), curr_y(), columns[0]);
-    putfield("│", BLACK, highlight);
-    putfield(&fields[1], WHITE, highlight);
-
-    wmove(stdscr(), curr_y(), columns[1]);
-    putfield("│", BLACK, highlight);
-    putfield(&fields[2], GREEN, highlight);
-
-    wmove(stdscr(), curr_y(), columns[2]);
-    putfield("│", BLACK, highlight);
-    putfield(&fields[3], BLUE, highlight);
-
-    wmove(stdscr(), curr_y(), columns[3]);
-    putfield("│", BLACK, highlight);
-    putfield(&fields[4], YELLOW, highlight);
+        putfield(&fields[i], COLORS[i], highlight);
+    }
 
     attroff(A_BOLD());
 }

@@ -71,7 +71,13 @@ fn fetch_emails() -> (Vec<String>, Vec<Email>) {
 
 fn columns_from(row: &Vec<String>) -> Vec<i32> {
     let mut i = 0;
-    row.iter().map(|column| { i += 1 + column.len() as i32; i - 1 }).collect()
+    let mut columns: Vec<i32> = 
+        row
+        .iter()
+        .map(|column| { i += 1 + column.len() as i32; i - 1 })
+        .collect();
+    columns.insert(0, 0);
+    columns
 }
 
 fn main() {
