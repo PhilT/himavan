@@ -32,6 +32,10 @@ pub fn delete(id: &str, folder: &str) -> (ExitStatus, String) {
   run("delete", folder, vec![id], vec![])
 }
 
+pub fn mv(id: &str, src: &str, dest: &str) -> (ExitStatus, String) {
+  run("move", src, vec![id], vec![dest])
+}
+
 fn run(cmd: &str, folder: &str, ids: Vec<&str>, options: Vec<&str>) -> (ExitStatus, String) {
   let mut args = vec![cmd];
   if folder != "" { args.extend(["-f", folder]) }

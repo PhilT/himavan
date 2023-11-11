@@ -1,20 +1,20 @@
 extern crate ncurses;
 use ncurses::*;
 
-pub static COLOR_CURRENT: i16 = -1;
-pub static RED: i16 = 1;
-pub static GREEN: i16 = 2;
-pub static BLUE: i16 = 3;
-pub static YELLOW: i16 = 4;
-pub static WHITE: i16 = 5;
-pub static BLACK: i16 = 6;
+pub const COLOR_CURRENT: i16 = -1;
+pub const RED: i16 = 1;
+pub const GREEN: i16 = 2;
+pub const BLUE: i16 = 3;
+pub const YELLOW: i16 = 4;
+pub const WHITE: i16 = 5;
+pub const BLACK: i16 = 6;
 
-pub static RED_ON_BLACK: i16 = 11;
-pub static GREEN_ON_BLACK: i16 = 12;
-pub static BLUE_ON_BLACK: i16 = 13;
-pub static YELLOW_ON_BLACK: i16 = 14;
-pub static WHITE_ON_BLACK: i16 = 15;
-pub static BLACK_ON_BLACK: i16 = 16;
+pub const RED_ON_BLACK: i16 = 11;
+pub const GREEN_ON_BLACK: i16 = 12;
+pub const BLUE_ON_BLACK: i16 = 13;
+pub const YELLOW_ON_BLACK: i16 = 14;
+pub const WHITE_ON_BLACK: i16 = 15;
+pub const BLACK_ON_BLACK: i16 = 16;
 
 const FIELD_COUNT: usize = 5;
 const SEPARATOR: &str = "│";
@@ -140,4 +140,14 @@ pub fn pos() -> (i32, i32) {
     let mut x = 0;
     getyx(stdscr(), &mut y, &mut x);
     (x, y)
+}
+
+pub fn notice(text: &str) {
+  wmove(stdscr(), STATUS_LINE, 0);
+  putfield(text, GREEN, false);
+}
+
+pub fn error(text: &str) {
+  wmove(stdscr(), STATUS_LINE, 0);
+  putfield(text, RED, false);
 }

@@ -5,6 +5,16 @@ use core::str::Split;
 pub mod screen;
 pub mod mail;
 
+const QUIT: char = 'q';
+const LIST_DOWN: char = 'j';
+const LIST_UP: char = 'k';
+const LIST_DELETE: char = 'D';
+const LIST_READ: char = '\n';
+const LIST_ARCHIVE: char = 'A';
+const LIST_SPAM: char = 'S';
+const FOLDER_PREV: char = 'h';
+const FOLDER_NEXT: char = 'l';
+
 pub struct Email {
   pub id: String,
   pub flags: String,
@@ -108,22 +118,22 @@ fn main() {
     screen::color(screen::BLACK, false);
     screen::wipe_line();
     match char::from_u32(ch as u32) {
-      Some('q') => break,
-      Some('j') => {
+      Some(QUIT) => break,
+      Some(LIST_DOWN) => {
         if curr_email < emails.len() - 1 {
           wmove(stdscr(), curr_email as i32 + screen::FIRST_EMAIL_ROW, 0);
           render_email(&emails[curr_email], false, &columns);
           curr_email += 1;
         }
       },
-      Some('k') => {
+      Some(LIST_UP) => {
         if curr_email > 0 {
           wmove(stdscr(), curr_email as i32 + screen::FIRST_EMAIL_ROW, 0);
           render_email(&emails[curr_email], false, &columns);
           curr_email -= 1;
         }
       },
-      Some('h') => {
+      Some(FOLDER_PREV) => {
         if curr_folder > 0 {
           curr_email = 0;
           curr_folder -= 1;
@@ -132,7 +142,7 @@ fn main() {
           render_list(&emails, &columns);
         }
       },
-      Some('l') => {
+      Some(FOLDER_NEXT) => {
         if curr_folder < folders.len() - 1 {
           curr_email = 0;
           curr_folder += 1;
@@ -141,18 +151,38 @@ fn main() {
           render_list(&emails, &columns);
         }
       },
-      Some('D') => {
+      Some(LIST_DELETE) => {
         let (status, response) = mail::delete(&emails[curr_email].id, &folders[curr_folder]);
         wmove(stdscr(), screen::STATUS_LINE, 0);
         if status.success() {
           emails.remove(curr_email);
-          screen::putfield(&response, screen::GREEN, false);
+          screen::notice(&response);
           render_list(&emails, &columns);
         } else {
-          screen::putfield("Failed to delete email!", screen::RED, false);
+          screen::error(&response);
         }
       }
-      Some('\n') => {
+      Some(LIST_ARCHIVE) => {
+        let (status, response) = mail::mv(&emails[curr_email].id, &folders[curr_folder], "Archive");
+        if status.success() {
+          emails.remove(curr_email);
+          screen::notice(&response);
+          render_list(&emails, &columns);
+        } else {
+          screen::error(&response);
+        }
+      },
+      Some(LIST_SPAM) => {
+        let (status, response) = mail::mv(&emails[curr_email].id, &folders[curr_folder], "Spam");
+        if status.success() {
+          emails.remove(curr_email);
+          screen::notice(&response);
+          render_list(&emails, &columns);
+        } else {
+          screen::error(&response);
+        }
+      },
+      Some(LIST_READ) => {
         let (status, response) = mail::read(&emails[curr_email].id, &folders[curr_folder]);
         if status.success() {
           wmove(stdscr(), screen::HEADER_ROW, 0);
@@ -163,7 +193,7 @@ fn main() {
           screen::render_headings(&headings);
           render_list(&emails, &columns);
         } else {
-          screen::putfield("Failed to read email!", screen::RED, false);
+          screen::error("Failed to read email!");
         }
       },
       _ => {},
