@@ -29,7 +29,7 @@ fn render_list(data: &Vec<Email>, columns: &Vec<i32>) {
     wmove(stdscr(), i as i32 + screen::FIRST_EMAIL_ROW, 0);
     render_email(email, false, &columns);
   }
-  for y in (data.len() as i32)..(LINES()) {
+  for y in data.len() as i32..LINES() {
     wmove(stdscr(), y, 0);
     screen::wipe_line();
   }

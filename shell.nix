@@ -1,10 +1,18 @@
-with import <nixpkgs> {};
+let
+  rust-overlay = builtins.fetchTarball "https://github.com/oxalica/rust-overlay/archive/master.tar.gz";
+  pkgs = import <nixpkgs> {
+    overlays = [(import rust-overlay)];
+  };
+  toolchain = pkgs.rust-bin.fromRustupToolchainFile ./toolchain.toml;
+in
+  pkgs.mkShell {
+    packages = [
+      toolchain
 
-mkShell {
-  name = "ncurses";
-  packages = [
-    ncurses
-    rustup
-    rust-analyzer
-  ];
-}
+      pkgs.rust-analyzer-unwrapped
+      pkgs.ncurses
+    ];
+
+    RUST_SRC_PATH = "${toolchain}/lib/rustlib/src/rust/library";
+  }
+
