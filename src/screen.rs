@@ -17,30 +17,34 @@ pub static WHITE_ON_BLACK: i16 = 15;
 pub static BLACK_ON_BLACK: i16 = 16;
 
 const FIELD_COUNT: usize = 5;
+const SEPARATOR: &str = "│";
 pub const STATUS_LINE: i32 = 1;
 pub const HEADER_ROW: i32 = 2;
 pub const FIRST_EMAIL_ROW: i32 = 3;
 
+pub const FLAGGED_UNSEEN: &str = "✷";
+pub const FLAGGED_IMPORTANT: &str = "⚑";
+
 pub fn setup() {
-  initscr();
-  noecho();
-  start_color();
-  use_default_colors();
-  curs_set(CURSOR_VISIBILITY::CURSOR_INVISIBLE);
+    initscr();
+    noecho();
+    start_color();
+    use_default_colors();
+    curs_set(CURSOR_VISIBILITY::CURSOR_INVISIBLE);
 
-  init_pair(RED, COLOR_RED, COLOR_CURRENT);
-  init_pair(GREEN, COLOR_GREEN, COLOR_CURRENT);
-  init_pair(BLUE, COLOR_BLUE, COLOR_CURRENT);
-  init_pair(YELLOW, COLOR_YELLOW, COLOR_CURRENT);
-  init_pair(WHITE, COLOR_WHITE, COLOR_CURRENT);
-  init_pair(BLACK, COLOR_BLACK, COLOR_CURRENT);
+    init_pair(RED, COLOR_RED, COLOR_CURRENT);
+    init_pair(GREEN, COLOR_GREEN, COLOR_CURRENT);
+    init_pair(BLUE, COLOR_BLUE, COLOR_CURRENT);
+    init_pair(YELLOW, COLOR_YELLOW, COLOR_CURRENT);
+    init_pair(WHITE, COLOR_WHITE, COLOR_CURRENT);
+    init_pair(BLACK, COLOR_BLACK, COLOR_CURRENT);
 
-  init_pair(RED_ON_BLACK, COLOR_RED, COLOR_BLACK);
-  init_pair(GREEN_ON_BLACK, COLOR_GREEN, COLOR_BLACK);
-  init_pair(BLUE_ON_BLACK, COLOR_BLUE, COLOR_BLACK);
-  init_pair(YELLOW_ON_BLACK, COLOR_YELLOW, COLOR_BLACK);
-  init_pair(WHITE_ON_BLACK, COLOR_WHITE, COLOR_BLACK);
-  init_pair(BLACK_ON_BLACK, COLOR_BLACK, COLOR_BLACK);
+    init_pair(RED_ON_BLACK, COLOR_RED, COLOR_BLACK);
+    init_pair(GREEN_ON_BLACK, COLOR_GREEN, COLOR_BLACK);
+    init_pair(BLUE_ON_BLACK, COLOR_BLUE, COLOR_BLACK);
+    init_pair(YELLOW_ON_BLACK, COLOR_YELLOW, COLOR_BLACK);
+    init_pair(WHITE_ON_BLACK, COLOR_WHITE, COLOR_BLACK);
+    init_pair(BLACK_ON_BLACK, COLOR_BLACK, COLOR_BLACK);
 }
 
 pub fn teardown() {
@@ -49,7 +53,7 @@ pub fn teardown() {
 
 static COLORS: [i16; FIELD_COUNT] = [RED, WHITE, GREEN, BLUE, YELLOW];
 pub fn putline(fields: [String; FIELD_COUNT], highlight: bool, columns: &Vec<i32>) {
-    if fields[1].contains("✷") {
+    if fields[1].contains(FLAGGED_UNSEEN) {
         attron(A_BOLD());
     } else {
         attroff(A_BOLD());
@@ -60,7 +64,7 @@ pub fn putline(fields: [String; FIELD_COUNT], highlight: bool, columns: &Vec<i32
 
     for i in 0..FIELD_COUNT {
         wmove(stdscr(), curr_y(), columns[i]);
-        if i > 0 { putfield("│", BLACK, highlight); }
+        if i > 0 { putfield(SEPARATOR, BLACK, highlight); }
 
         putfield(&fields[i], COLORS[i], highlight);
     }
@@ -96,7 +100,7 @@ pub fn render_headings(fields: &Vec<String>) {
         x += 1 + field.len() as i32;
         if i < FIELD_COUNT - 1 {
             attron(COLOR_PAIR(BLACK));
-            addstr("│");
+            addstr(SEPARATOR);
         }
     }
     attroff(A_UNDERLINE() | A_BOLD());
