@@ -7,6 +7,7 @@ edition = "2021"
 
 [dependencies]
 ncurses = "5.101.0"
+spawn-editor = "0.0.5"
 
 [[bin]]
 name = "himavan"

@@ -12,6 +12,7 @@ const LIST_DELETE: char = 'D';
 const LIST_READ: char = '\n';
 const LIST_ARCHIVE: char = 'A';
 const LIST_SPAM: char = 'S';
+const LIST_WRITE: char = 'w';
 const FOLDER_PREV: char = 'h';
 const FOLDER_NEXT: char = 'l';
 
@@ -194,6 +195,21 @@ fn main() {
           render_list(&emails, &columns);
         } else {
           screen::error("Failed to read email!");
+        }
+      },
+      Some(LIST_WRITE) => {
+        screen::teardown();
+        let result = mail::write();
+        screen::setup();
+        refresh();
+
+        match result {
+          Ok(path) => {
+            let (status, _response) = mail::send(path);
+            if status.success() { screen::notice("Email successfully sent!") }
+            else { screen::error("Failed to send email!") }
+          },
+          Err(msg) => screen::error(&msg),
         }
       },
       _ => {},
