@@ -1,18 +1,15 @@
-let
-  rust-overlay = builtins.fetchTarball "https://github.com/oxalica/rust-overlay/archive/master.tar.gz";
-  pkgs = import <nixpkgs> {
-    overlays = [(import rust-overlay)];
-  };
-  toolchain = pkgs.rust-bin.fromRustupToolchainFile ./toolchain.toml;
-in
-  pkgs.mkShell {
-    packages = [
-      toolchain
+with import <nixpkgs> {};
 
-      pkgs.rust-analyzer-unwrapped
-      pkgs.ncurses
-    ];
+mkShell {
+  name = "dotnet";
+  packages = [
+    dotnet-sdk_7
+    ncurses
+  ];
+  buildInputs = with pkgs; [
+    ncurses
+  ];
 
-    RUST_SRC_PATH = "${toolchain}/lib/rustlib/src/rust/library";
-  }
-
+  # Workaround as Silk.NET and FreeTypeSharp need repackaging for Nix
+  LD_LIBRARY_PATH="${ncurses}/lib";
+}

@@ -1,0 +1,11 @@
+[keys]
+quit = q
+down = j
+up = k
+delete = D
+read = \n
+archive = A
+spam = S
+write = w
+prev_folder = h
+next_folder = l

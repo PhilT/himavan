@@ -4,3 +4,5 @@ himavan
 # Added by cargo
 
 /target
+bin
+obj
