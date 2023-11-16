@@ -50,9 +50,13 @@ let flagsToString (flags: string list) =
 
   flagString
 
+open System.Globalization
+let utf8Length str = StringInfo(str).LengthInTextElements
+let utf8Substr str len = StringInfo(str).SubstringByTextElements(0, len)
 
-let column text column (width: int) separator =
-  let padding = String.replicate width " "
+let column (text: string) column (width: int) separator =
+  let text = if (utf8Length text) > width then (utf8Substr text width) else text
+  let padding = String.replicate (width - (utf8Length text)) " "
   Con.write $"{text}{padding}" EmailColors[int column] Con.defaultBg
   if separator then Con.write SEPARATOR SEPARATOR_COLOR Con.defaultBg
 
@@ -72,7 +76,8 @@ let fieldOf email field =
 
 let maxWidthOf list field =
   list
-  |> List.map (fun (_, email) -> (fieldOf email field).Length) |> List.max
+  |> List.map (fun (_, email) -> String.length (fieldOf email field))
+  |> List.max
 
 
 let render y selected (emails: Map<string, Email>) =
@@ -87,17 +92,8 @@ let render y selected (emails: Map<string, Email>) =
   let separatorCount = FIELD_COUNT - 1
   let idWidth = (maxWidthOf emailList "id")
   let flagsWidth = (maxWidthOf emailList "flags")
-  let subjectWidth = (maxWidthOf emailList "subject")
   let fromWidth = (maxWidthOf emailList "from")
   let dateWidth = (maxWidthOf emailList "date")
-
-  Con.writeAt $"{idWidth}" 0 20 Con.defaultFg Con.defaultBg
-  Con.writeAt $"{flagsWidth}" 0 21 Con.defaultFg Con.defaultBg
-  Con.writeAt $"{subjectWidth}" 0 22 Con.defaultFg Con.defaultBg
-  Con.writeAt $"{fromWidth}" 0 23 Con.defaultFg Con.defaultBg
-  Con.writeAt $"{dateWidth}" 0 24 Con.defaultFg Con.defaultBg
-
-  Con.moveTo 0 y
 
   let subjectFromWidth =
     Con.width () - separatorCount - idWidth - flagsWidth - dateWidth
@@ -105,7 +101,6 @@ let render y selected (emails: Map<string, Email>) =
   let subjectWidth = subjectFromWidth - fromWidth
 
   emailList
-  |> List.take 1
   |> List.iteri (fun i (id, email) ->
     column id EmailIndexOf.ID idWidth true
     column (flagsToString email.flags) EmailIndexOf.FLAGS flagsWidth true

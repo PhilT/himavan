@@ -70,6 +70,13 @@ let list folder limit =
   //TODO: Handle response.exitCode <> 0
   JsonSerializer.Deserialize<Email list> response.out
   |> List.fold (fun state email ->
+    let email = {
+      email with
+        from = {
+          name = if email.from.name = null then "" else email.from.name
+          addr = if email.from.addr = null then "" else email.from.addr
+        }
+    }
     Map.add email.id email state
   ) Map.empty
 
