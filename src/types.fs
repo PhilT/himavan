@@ -9,10 +9,10 @@ type Email = {
   id: string
   flags: string list
   subject: string
+  subjectCharWidths: int list
   from: Address
   date: string
 }
-
 
 type Folder = {
   name: string
@@ -34,7 +34,6 @@ type Colors = {
   selected: Color * Color
   normal: Color * Color
 }
-
 
 type State = {
   settings: Keys

@@ -1,9 +1,11 @@
 module Himavan.Mail
 
-open System.Text.Json
 open System.Diagnostics
-open System.Text
+open System.Globalization
 open System.IO
+open System.Text
+open System.Text.Json
+open Wcwidth
 
 let SEPARATOR = "│"
 let MAIL_PROG = "himalaya"
@@ -64,6 +66,17 @@ let folders () =
   |> List.rev
 
 
+//UnicodeCalculator.GetWidth(Char.ConvertToUtf32(str, 0)
+let calculateCharWidths text =
+  let en = StringInfo.GetTextElementEnumerator(text)
+  Seq.unfold (fun _ ->
+    if en.MoveNext() then
+      Some(en.Current, ())
+    else
+      None
+  )
+
+
 let list folder limit =
   let response = runHim "list" folder [] ["-s"; $"{limit}"] None
 
@@ -72,11 +85,13 @@ let list folder limit =
   |> List.fold (fun state email ->
     let email = {
       email with
+        subjectCharWidths = calculatedCharWidths email.subject
         from = {
           name = if email.from.name = null then "" else email.from.name
           addr = if email.from.addr = null then "" else email.from.addr
         }
     }
+    printfn "%A" email
     Map.add email.id email state
   ) Map.empty
 

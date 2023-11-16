@@ -17,7 +17,7 @@ let newState = {
     emails = Map.add state.folders[0] emails Map.empty
 }
 
-
+failwith("Bail!")
 
 Renderer.setup ()
 Renderer.update newState
