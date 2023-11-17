@@ -52,14 +52,14 @@ let flagsToString (flags: string list) =
   flagString
 
 
-let column (text: string) column (width: int) separator =
+let column (text: string) column (width: int) separator bg =
   let text = if (String.length text) > width then (text[0..width - 1]) else text
   let padding = String.replicate (width - (String.length text)) " "
-  Con.write $"{text}{padding}" EmailColors[int column] Con.defaultBg
-  if separator then Con.write SEPARATOR SEPARATOR_COLOR Con.defaultBg
+  Con.write $"{text}{padding}" EmailColors[int column] bg
+  if separator then Con.write SEPARATOR SEPARATOR_COLOR bg
 
 
-let subjectColumn (email: Email) (columnWidth: int) separator =
+let subjectColumn (email: Email) (columnWidth: int) separator bg =
   let text =
     if email.subjectTotalWidth < columnWidth then
       let padding = String.replicate (columnWidth - email.subjectTotalWidth) " "
@@ -76,8 +76,8 @@ let subjectColumn (email: Email) (columnWidth: int) separator =
           loop (newLength) (i + 1)
 
       loop 0 0
-  Con.write text EmailColors[int EmailIndexOf.SUBJECT] Con.defaultBg
-  if separator then Con.write SEPARATOR SEPARATOR_COLOR Con.defaultBg
+  Con.write text EmailColors[int EmailIndexOf.SUBJECT] bg
+  if separator then Con.write SEPARATOR SEPARATOR_COLOR bg
 
 
 let from (address: Address) =
@@ -138,10 +138,12 @@ let render y selected (emails: Map<string, Email>) =
 
   emailList
   |> List.iteri (fun i (id, email) ->
-    column id EmailIndexOf.ID idWidth true
-    column (flagsToString email.flags) EmailIndexOf.FLAGS flagsWidth true
-    subjectColumn email subjectWidth true
-    column (from email.from) EmailIndexOf.FROM fromWidth true
-    column email.date EmailIndexOf.DATE dateWidth false
+    let bg = if i = selected then Color.Black else Con.defaultBg
+
+    column id EmailIndexOf.ID idWidth true bg
+    column (flagsToString email.flags) EmailIndexOf.FLAGS flagsWidth true bg
+    subjectColumn email subjectWidth true bg
+    column (from email.from) EmailIndexOf.FROM fromWidth true bg
+    column email.date EmailIndexOf.DATE dateWidth false bg
   )
 

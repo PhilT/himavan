@@ -36,8 +36,14 @@ type Colors = {
   normal: Color * Color
 }
 
+type Settings = {
+  keys: Keys
+  settings: Map<string, string>
+  debug: Map<string, string>
+}
+
 type State = {
-  settings: Keys
+  settings: Settings
   folders: Folders
   emails: Map<FolderName, Emails>
   currentFolder: int

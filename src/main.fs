@@ -11,10 +11,11 @@ let state = {
   currentEmail = 0
 }
 
-let emails = Mail.list state.folders[state.currentFolder] (Con.height() - Renderer.FIRST_EMAIL_LINE - 1)
+let currentFolder = State.currentFolder state
+let emails = Mail.list currentFolder (Con.height() - Renderer.FIRST_EMAIL_LINE - 1)
 let newState = {
   state with
-    emails = Map.add state.folders[0] emails Map.empty
+    emails = Map.add currentFolder emails Map.empty
 }
 
 Renderer.setup ()
@@ -23,12 +24,13 @@ Renderer.update newState
 let rec loop state =
   Con.moveTo 0 0
   let ch = Con.getChar ()
+  Logger.write "Main" "module" $"Key pressed {ch}"
 
   let newState = State.update ch state
 
   Renderer.update newState
 
-  if ch <> newState.settings["quit"] then
+  if ch <> newState.settings.keys["quit"] then
     loop newState
 
 

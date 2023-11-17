@@ -13,11 +13,11 @@
     <Compile Include="src/types.fs" />
     <Compile Include="src/path.fs" />
     <Compile Include="src/settings.fs" />
+    <Compile Include="src/state.fs" />
     <Compile Include="src/con.fs" />
     <Compile Include="src/renderer/email.fs" />
     <Compile Include="src/renderer.fs" />
     <Compile Include="src/mail.fs" />
-    <Compile Include="src/state.fs" />
     <Compile Include="src/main.fs" />
   </ItemGroup>
 

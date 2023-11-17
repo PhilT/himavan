@@ -90,7 +90,7 @@ let list folder limit =
 
   //TODO: Handle response.exitCode <> 0
   JsonSerializer.Deserialize<Email list> response.out
-  |> List.fold (fun state email ->
+  |> List.fold (fun emails email ->
     let subjectTotalWidth, subjectCharWidths = calculateCharWidths email.subject
     let email = {
       email with
@@ -101,7 +101,7 @@ let list folder limit =
           addr = if email.from.addr = null then "" else email.from.addr
         }
     }
-    Map.add email.id email state
+    Map.add email.id email emails
   ) Map.empty
 
 

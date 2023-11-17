@@ -9,3 +9,8 @@ spam = S
 write = w
 prev_folder = h
 next_folder = l
+
+[settings]
+
+[debug]
+logging = off
