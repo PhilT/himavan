@@ -17,12 +17,11 @@ let newState = {
     emails = Map.add state.folders[0] emails Map.empty
 }
 
-failwith("Bail!")
-
 Renderer.setup ()
 Renderer.update newState
 
 let rec loop state =
+  Con.moveTo 0 0
   let ch = Con.getChar ()
 
   let newState = State.update ch state

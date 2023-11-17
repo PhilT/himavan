@@ -10,6 +10,7 @@ type Email = {
   flags: string list
   subject: string
   subjectCharWidths: int list
+  subjectTotalWidth: int
   from: Address
   date: string
 }

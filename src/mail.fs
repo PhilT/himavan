@@ -1,5 +1,6 @@
 module Himavan.Mail
 
+open System
 open System.Diagnostics
 open System.Globalization
 open System.IO
@@ -66,15 +67,19 @@ let folders () =
   |> List.rev
 
 
-//UnicodeCalculator.GetWidth(Char.ConvertToUtf32(str, 0)
 let calculateCharWidths text =
   let en = StringInfo.GetTextElementEnumerator(text)
-  Seq.unfold (fun _ ->
-    if en.MoveNext() then
-      Some(en.Current, ())
+
+  let rec loop totalWidth (lst: int list) =
+    let another = en.MoveNext()
+    if another then
+      let ch = en.GetTextElement()
+      let width = UnicodeCalculator.GetWidth(Char.ConvertToUtf32(ch, 0))
+      loop (totalWidth + width) (width :: lst)
     else
-      None
-  )
+      totalWidth, List.rev lst
+
+  loop 0 List.empty
 
 
 let list folder limit =
@@ -83,15 +88,16 @@ let list folder limit =
   //TODO: Handle response.exitCode <> 0
   JsonSerializer.Deserialize<Email list> response.out
   |> List.fold (fun state email ->
+    let subjectTotalWidth, subjectCharWidths = calculateCharWidths email.subject
     let email = {
       email with
-        subjectCharWidths = calculatedCharWidths email.subject
+        subjectCharWidths = subjectCharWidths
+        subjectTotalWidth = subjectTotalWidth
         from = {
           name = if email.from.name = null then "" else email.from.name
           addr = if email.from.addr = null then "" else email.from.addr
         }
     }
-    printfn "%A" email
     Map.add email.id email state
   ) Map.empty
 
