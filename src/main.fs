@@ -11,7 +11,7 @@ let state = {
   currentEmail = 0
 }
 
-let emails = Mail.list state.folders[state.currentFolder] 50
+let emails = Mail.list state.folders[state.currentFolder] (Con.height() - Renderer.FIRST_EMAIL_LINE - 1)
 let newState = {
   state with
     emails = Map.add state.folders[0] emails Map.empty

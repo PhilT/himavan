@@ -22,6 +22,8 @@ type ProcessResult = {
 
 
 let runCmd exe args (stdin: string option) =
+  Logger.write "Mail" "runCmd" $"{exe} {args} {stdin}"
+
   let p = new Process()
   p.StartInfo.UseShellExecute <- false
   p.StartInfo.FileName <- exe
@@ -83,6 +85,7 @@ let calculateCharWidths text =
 
 
 let list folder limit =
+  Logger.write "Mail" "list" $"{folder} {limit}"
   let response = runHim "list" folder [] ["-s"; $"{limit}"] None
 
   //TODO: Handle response.exitCode <> 0

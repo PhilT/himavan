@@ -94,9 +94,10 @@ let fieldOf email field =
   | _ -> failwith $"Invalid field `{field}` specified when attempting to access Email record"
 
 
-let maxWidthOf list field =
-  list
+let maxWidthOf lst field =
+  lst
   |> List.map (fun (_, email) -> String.length (fieldOf email field))
+  |> (fun lst -> String.length field :: lst)
   |> List.max
 
 
@@ -104,7 +105,7 @@ let headerColumn field width separator =
   let text = EmailColumns[int field].name
   let text = if (String.length text) > width then (text[0..width - 1]) else text
   let padding = String.replicate (width - (String.length text)) " "
-  Con.write $"{text}{padding}" Color.White Con.defaultBg
+  Con.underline $"{text}{padding}" Color.White Con.defaultBg
   if separator then Con.write SEPARATOR SEPARATOR_COLOR Con.defaultBg
 
 
@@ -112,10 +113,11 @@ let render y selected (emails: Map<string, Email>) =
   Con.moveTo 0 y
 
   let emailList =
+    let emailCount = min (Con.height () - y) emails.Count
     emails
     |> Map.toList
     |> List.sortByDescending(fun (id, email) -> email.date)
-    |> List.take (Con.height () - y)
+    |> List.take emailCount
 
   let separatorCount = FIELD_COUNT - 1
   let idWidth = (maxWidthOf emailList "id")

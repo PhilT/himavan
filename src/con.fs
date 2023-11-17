@@ -2,6 +2,9 @@ module Himavan.Con
 
 open System
 
+let ANSI_NORMAL = "\x1b[0m"
+let ANSI_UNDERLINE = "\x1b[4m"
+
 let defaultBg = Console.BackgroundColor
 let defaultFg = Console.ForegroundColor
 
@@ -10,6 +13,9 @@ let write (text: string) fg bg =
   Console.BackgroundColor <- bg
   Console.Write(text)
 
+
+let underline (text: string) fg bg =
+  write $"{ANSI_UNDERLINE}{text}{ANSI_NORMAL}" fg bg
 
 let moveTo x y =
   Console.SetCursorPosition(x, y)

@@ -9,6 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="src/logger.fs" />
     <Compile Include="src/types.fs" />
     <Compile Include="src/path.fs" />
     <Compile Include="src/settings.fs" />
