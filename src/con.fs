@@ -50,8 +50,10 @@ let hideCursor () = Console.CursorVisible <- false
 let showCursor () = Console.CursorVisible <- true
 
 
-let clearTo currY toY =
-  writeAt (String.replicate (width() * (toY - currY)) " ") 0 currY defaultFg defaultBg
+let clearTo fromY toY =
+  let cells = width() * (toY - fromY)
+  Logger.write "Con" "clearTo" $"{fromY} {toY} {cells}"
+  writeAt (String.replicate cells " ") 0 fromY defaultFg defaultBg
 
 
 let clearLine y =
@@ -59,7 +61,8 @@ let clearLine y =
 
 
 let clearToBottom fromY =
-  clearTo fromY (height () - fromY)
+  if fromY < height() then
+    clearTo fromY (height ())
 
 
 let setup () =

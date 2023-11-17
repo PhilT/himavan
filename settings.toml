@@ -13,4 +13,4 @@ next_folder = l
 [settings]
 
 [debug]
-logging = off
+logging = on

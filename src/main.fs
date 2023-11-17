@@ -3,6 +3,8 @@ module Himavan.Main
 open System
 open System.IO
 
+Logger.write "Himvan" "Main" "Logging started"
+
 let state = {
   settings = Settings.fetch ()
   folders = Mail.folders ()
@@ -12,27 +14,26 @@ let state = {
 }
 
 let currentFolder = State.currentFolder state
-let emails = Mail.list currentFolder (Con.height() - Renderer.FIRST_EMAIL_LINE - 1)
-let newState = {
-  state with
-    emails = Map.add currentFolder emails Map.empty
-}
+//let emails = Mail.list currentFolder (Con.height() - Renderer.FIRST_EMAIL_LINE - 1)
+//let newState = {
+//  state with
+//    emails = Map.add currentFolder emails Map.empty
+//}
 
 Renderer.setup ()
-Renderer.update newState
+Renderer.update state Map.empty
 
 let rec loop state =
   Con.moveTo 0 0
   let ch = Con.getChar ()
-  Logger.write "Main" "module" $"Key pressed {ch}"
 
   let newState = State.update ch state
 
-  Renderer.update newState
+  Renderer.update newState (State.currentEmails state)
 
   if ch <> newState.settings.keys["quit"] then
     loop newState
 
 
-loop newState
+loop state
 Renderer.teardown ()

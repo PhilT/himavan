@@ -147,3 +147,5 @@ let render y selected (emails: Map<string, Email>) =
     column email.date EmailIndexOf.DATE dateWidth false bg
   )
 
+  Con.clearToBottom (Con.currY())
+

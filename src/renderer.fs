@@ -37,7 +37,7 @@ let setup () =
 let teardown () =
   Con.teardown ()
 
-let update (state: State) =
+let update (state: State) emails =
   renderFolders state.currentFolder state.folders
 
-  Renderer.Email.render FIRST_EMAIL_LINE state.currentEmail state.emails[State.currentFolder state]
+  Renderer.Email.render FIRST_EMAIL_LINE state.currentEmail emails
