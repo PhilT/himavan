@@ -77,7 +77,7 @@ let calculateCharWidths text =
     if another then
       let ch = en.GetTextElement()
       let width = UnicodeCalculator.GetWidth(Char.ConvertToUtf32(ch, 0))
-      loop (totalWidth + width) (width :: lst)
+      loop (totalWidth + width) (totalWidth + width :: lst)
     else
       totalWidth, List.rev lst
 
@@ -85,7 +85,6 @@ let calculateCharWidths text =
 
 
 let list folder limit =
-  Logger.write "Mail" "list" $"{folder} {limit}"
   let response = runHim "list" folder [] ["-s"; $"{limit}"] None
 
   //TODO: Handle response.exitCode <> 0

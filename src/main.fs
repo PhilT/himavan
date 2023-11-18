@@ -31,11 +31,12 @@ let rec agent = MailboxProcessor.Start(fun inbox ->
       let! msg = inbox.Receive()
       match msg with
       | Update(ch) ->
+        Logger.write "Main" "Update" $"{ch}"
         let newState = State.update ch state agent
         Renderer.update newState (State.currentEmails newState)
         return! loop newState
       | NewEmails(folder, emails) ->
-        Logger.write "Main" "agent" $"{emails.Count} emails in {folder}"
+        Logger.write "Main" "NewEmails" $"{emails.Count} emails in {folder}"
         let newState = { state with emails = Map.add folder emails state.emails }
         Renderer.update newState (State.currentEmails newState)
         return! loop newState
@@ -58,7 +59,7 @@ let rec keyLoop () =
       //let newState = agent.PostAndReply((fun channel -> Fetch channel))
       ch = state.settings.keys["quit"]
     | None ->
-      Threading.Thread.Sleep(250)
+      Threading.Thread.Sleep(Int32.Parse state.settings.general["response_time"])
       false
 
   if not quit then

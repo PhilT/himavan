@@ -26,11 +26,13 @@ let fetch () =
         { settings with
             keys = Map.add keyValue[0] (keyValue[1].ToCharArray()[0]) settings.keys
         }
-      | "[settings]" ->
-        settings
+      | "[general]" ->
+        { settings with
+            general = Map.add keyValue[0] keyValue[1] settings.general
+        }
       | "[debug]" ->
         { settings with
             debug = Map.add keyValue[0] keyValue[1] settings.debug
         }
       | _ -> settings
-  ) { keys = Map.empty; settings = Map.empty; debug = Map.empty }
+  ) { keys = Map.empty; general = Map.empty; debug = Map.empty }

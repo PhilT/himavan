@@ -60,22 +60,14 @@ let column (text: string) column (width: int) separator bg =
 
 
 let subjectColumn (email: Email) (columnWidth: int) separator bg =
+  Logger.write "Renderer.Email" "subjectColumn" (sprintf "%s: %A" email.subject email.subjectCharWidths)
   let text =
     if email.subjectTotalWidth < columnWidth then
       let padding = String.replicate (columnWidth - email.subjectTotalWidth) " "
       $"{email.subject}{padding}"
     else
-      let rec loop length i =
-        let newLength = length + email.subjectCharWidths[i]
-        if newLength > columnWidth then
-          let padding = String.replicate (columnWidth - length) " "
-          $"{email.subject[0..length - 1]}{padding}"
-        elif newLength = columnWidth then
-          email.subject[0..i]
-        else
-          loop (newLength) (i + 1)
-
-      loop 0 0
+      let i = email.subjectCharWidths |> List.findBack(fun w -> w < columnWidth)
+      email.subject[0..i]
   Con.write text EmailColors[int EmailIndexOf.SUBJECT] bg
   if separator then Con.write SEPARATOR SEPARATOR_COLOR bg
 

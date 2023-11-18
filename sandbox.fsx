@@ -40,6 +40,7 @@ info "↵"
 info "🐂"
 info "🚀"
 info "✊"
+info "🎯"
 info "✂"
 info "\uD800\uDC00"
 

@@ -38,7 +38,7 @@ type Colors = {
 
 type Settings = {
   keys: Keys
-  settings: Map<string, string>
+  general: Map<string, string>
   debug: Map<string, string>
 }
 

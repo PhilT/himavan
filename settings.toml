@@ -10,7 +10,8 @@ write = w
 prev_folder = h
 next_folder = l
 
-[settings]
+[general]
+response_time = 100
 
 [debug]
-logging = on
+logging = off

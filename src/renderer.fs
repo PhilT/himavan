@@ -40,4 +40,4 @@ let teardown () =
 let update (state: State) emails =
   renderFolders state.currentFolder state.folders
 
-  Renderer.Email.render FIRST_EMAIL_LINE state.currentEmail emails
+  Renderer.Email.render HEADER_LINE state.currentEmail emails
