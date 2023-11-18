@@ -1,6 +1,8 @@
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
-module Himavan.Renderer
+module Himavan.Renderer.All
 open System
+
+open Himavan
 
 let FOLDER_LINE = 0
 let STATUS_LINE = 1

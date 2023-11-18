@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net7.0</TargetFramework>
+    <PublishSingleFile>true</PublishSingleFile>
+    <SelfContained>true</SelfContained>
+    <PublishTrimmed>true</PublishTrimmed>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../src/src.fsproj" />
+    <ProjectReference Include="../fest/fest.fsproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="renderer_measure_test.fs" />
+    <Compile Include="main.fs" />
+  </ItemGroup>
+
+</Project>

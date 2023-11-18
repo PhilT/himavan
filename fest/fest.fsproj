@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFramework>net7.0</TargetFramework>
+    <Version>0.7.1.0</Version>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="path.fs" />
+    <Compile Include="display.fs" />
+    <Compile Include="test_helper.fs" />
+    <Compile Include="main.fs" />
+  </ItemGroup>
+</Project>

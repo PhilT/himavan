@@ -15,10 +15,6 @@ let info (str: string) =
   let len = info.LengthInTextElements
   let substr = info.SubstringByTextElements(0, len)
 
-  let graphemeEnum = StringInfo.GetTextElementEnumerator(str)
-  graphemeEnum.MoveNext() |> ignore
-  let firstChar = graphemeEnum.GetTextElement()
-
 
   printfn "%A" str
   printfn "Char length: %A" (StringInfo(str).LengthInTextElements)
@@ -28,7 +24,7 @@ let info (str: string) =
   else
     "No")
   |> printfn "Surrogate: %A"
-  printfn "Wcwidth: %A" (UnicodeCalculator.GetWidth(Char.ConvertToUtf32(str, 0)))
+  printfn "Wcwidth: %A" (UnicodeCalculator.GetWidth(Char.ConvertToUtf32(str, 0), Unicode.Version_15_1_0))
   //printfn "Normalize %A" (str.Normalize(NormalizationForm.FormKD).Length)
   printfn "UTF32: %A" (Char.ConvertToUtf32(str, 0))
 
@@ -42,6 +38,8 @@ info "🚀"
 info "✊"
 info "🎯"
 info "✂"
+info "⚔️"
+info "❄️"
 info "\uD800\uDC00"
 
 //Console.SetCursorPosition(10, 10)

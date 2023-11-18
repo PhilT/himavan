@@ -2,6 +2,7 @@
 module Himavan.Renderer.Email
 open Himavan
 open System.Text
+open System.Globalization
 
 let FIELD_COUNT = 5
 let SEPARATOR = "│"
@@ -55,21 +56,17 @@ let flagsToString (flags: string list) =
 let column (text: string) column (width: int) separator bg =
   let text = if (String.length text) > width then (text[0..width - 1]) else text
   let padding = String.replicate (width - (String.length text)) " "
+  if separator then Con.write SEPARATOR SEPARATOR_COLOR bg
   Con.write $"{text}{padding}" EmailColors[int column] bg
+
+
+let subjectColumn subject widths (columnWidth: int) =
+  Measure.unicodeColumn subject widths columnWidth
+
+
+let writeSubject separator bg text =
   if separator then Con.write SEPARATOR SEPARATOR_COLOR bg
-
-
-let subjectColumn (email: Email) (columnWidth: int) separator bg =
-  Logger.write "Renderer.Email" "subjectColumn" (sprintf "%s: %A" email.subject email.subjectCharWidths)
-  let text =
-    if email.subjectTotalWidth < columnWidth then
-      let padding = String.replicate (columnWidth - email.subjectTotalWidth) " "
-      $"{email.subject}{padding}"
-    else
-      let i = email.subjectCharWidths |> List.findBack(fun w -> w < columnWidth)
-      email.subject[0..i]
   Con.write text EmailColors[int EmailIndexOf.SUBJECT] bg
-  if separator then Con.write SEPARATOR SEPARATOR_COLOR bg
 
 
 let from (address: Address) =
@@ -97,8 +94,8 @@ let headerColumn field width separator =
   let text = EmailColumns[int field].name
   let text = if (String.length text) > width then (text[0..width - 1]) else text
   let padding = String.replicate (width - (String.length text)) " "
-  Con.underline $"{text}{padding}" Color.White Con.defaultBg
   if separator then Con.write SEPARATOR SEPARATOR_COLOR Con.defaultBg
+  Con.underline $"{text}{padding}" Color.White Con.defaultBg
 
 
 let render y selected (emails: Map<string, Email>) =
@@ -122,21 +119,21 @@ let render y selected (emails: Map<string, Email>) =
   let fromWidth = min fromWidth (subjectFromWidth / 3 * 1)
   let subjectWidth = subjectFromWidth - fromWidth
 
-  headerColumn EmailIndexOf.ID idWidth true
+  headerColumn EmailIndexOf.ID idWidth false
   headerColumn EmailIndexOf.FLAGS flagsWidth true
   headerColumn EmailIndexOf.SUBJECT subjectWidth true
   headerColumn EmailIndexOf.FROM fromWidth true
-  headerColumn EmailIndexOf.DATE dateWidth false
+  headerColumn EmailIndexOf.DATE dateWidth true
 
   emailList
   |> List.iteri (fun i (id, email) ->
     let bg = if i = selected then Color.Black else Con.defaultBg
 
-    column id EmailIndexOf.ID idWidth true bg
+    column id EmailIndexOf.ID idWidth false bg
     column (flagsToString email.flags) EmailIndexOf.FLAGS flagsWidth true bg
-    subjectColumn email subjectWidth true bg
+    subjectColumn email.subject email.subjectCharWidths subjectWidth |> writeSubject true bg
     column (from email.from) EmailIndexOf.FROM fromWidth true bg
-    column email.date EmailIndexOf.DATE dateWidth false bg
+    column email.date EmailIndexOf.DATE dateWidth true bg
   )
 
   Con.clearToBottom (Con.currY())

@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net7.0</TargetFramework>
+    <PublishSingleFile>true</PublishSingleFile>
+    <SelfContained>true</SelfContained>
+    <PublishTrimmed>true</PublishTrimmed>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="logger.fs" />
+    <Compile Include="types.fs" />
+    <Compile Include="path.fs" />
+    <Compile Include="settings.fs" />
+    <Compile Include="con.fs" />
+    <Compile Include="renderer/measure.fs" />
+    <Compile Include="renderer/email.fs" />
+    <Compile Include="renderer/all.fs" />
+    <Compile Include="mail.fs" />
+    <Compile Include="state.fs" />
+    <Compile Include="main.fs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Wcwidth" Version="2.0.0" />
+  </ItemGroup>
+
+</Project>

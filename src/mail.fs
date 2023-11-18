@@ -2,11 +2,9 @@ module Himavan.Mail
 
 open System
 open System.Diagnostics
-open System.Globalization
 open System.IO
 open System.Text
 open System.Text.Json
-open Wcwidth
 
 let SEPARATOR = "│"
 let MAIL_PROG = "himalaya"
@@ -69,32 +67,16 @@ let folders () =
   |> List.rev
 
 
-let calculateCharWidths text =
-  let en = StringInfo.GetTextElementEnumerator(text)
-
-  let rec loop totalWidth (lst: int list) =
-    let another = en.MoveNext()
-    if another then
-      let ch = en.GetTextElement()
-      let width = UnicodeCalculator.GetWidth(Char.ConvertToUtf32(ch, 0))
-      loop (totalWidth + width) (totalWidth + width :: lst)
-    else
-      totalWidth, List.rev lst
-
-  loop 0 List.empty
-
-
 let list folder limit =
   let response = runHim "list" folder [] ["-s"; $"{limit}"] None
 
   //TODO: Handle response.exitCode <> 0
   JsonSerializer.Deserialize<Email list> response.out
   |> List.fold (fun emails email ->
-    let subjectTotalWidth, subjectCharWidths = calculateCharWidths email.subject
+    let subjectCharWidths = Renderer.Measure.calculateCharWidths email.subject
     let email = {
       email with
         subjectCharWidths = subjectCharWidths
-        subjectTotalWidth = subjectTotalWidth
         from = {
           name = if email.from.name = null then "" else email.from.name
           addr = if email.from.addr = null then "" else email.from.addr

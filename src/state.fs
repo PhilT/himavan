@@ -12,7 +12,7 @@ let currentEmails state =
 
 let fetchEmails folder (agent: MailboxProcessor<Msg>) =
   async {
-    let emails = Mail.list folder (Con.height() - Renderer.FIRST_EMAIL_LINE - 1)
+    let emails = Mail.list folder (Con.height() - Renderer.All.FIRST_EMAIL_LINE - 1)
     agent.Post(NewEmails(folder, emails))
   } |> Async.Start
 
