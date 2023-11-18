@@ -23,17 +23,47 @@ let currentFolder = State.currentFolder state
 Renderer.setup ()
 Renderer.update state Map.empty
 
-let rec loop state =
-  Con.moveTo 0 0
-  let ch = Con.getChar ()
+let rec agent = MailboxProcessor.Start(fun inbox ->
+  let rec loop state =
+    async {
+      Con.moveTo 0 0
 
-  let newState = State.update ch state
+      let! msg = inbox.Receive()
+      match msg with
+      | Update(ch) ->
+        let newState = State.update ch state agent
+        Renderer.update newState (State.currentEmails newState)
+        return! loop newState
+      | NewEmails(folder, emails) ->
+        Logger.write "Main" "agent" $"{emails.Count} emails in {folder}"
+        let newState = { state with emails = Map.add folder emails state.emails }
+        Renderer.update newState (State.currentEmails newState)
+        return! loop newState
+      | Fetch(channel) ->
+        channel.Reply(state)
+        return! loop state
+    }
 
-  Renderer.update newState (State.currentEmails state)
+  loop state
+)
 
-  if ch <> newState.settings.keys["quit"] then
-    loop newState
+// Get the first email folder
+State.fetchEmails (State.currentFolder state) agent |> ignore
 
+let rec keyLoop () =
+  let quit =
+    match Con.nextChar () with
+    | Some(ch) ->
+      agent.Post(Update(ch))
+      //let newState = agent.PostAndReply((fun channel -> Fetch channel))
+      ch = state.settings.keys["quit"]
+    | None ->
+      Threading.Thread.Sleep(250)
+      false
 
-loop state
+  if not quit then
+    keyLoop ()
+
+keyLoop ()
+
 Renderer.teardown ()

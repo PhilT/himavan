@@ -9,7 +9,15 @@ let currentEmails state =
   else
     Map.empty
 
-let update (ch: char) (state: State) =
+
+let fetchEmails folder (agent: MailboxProcessor<Msg>) =
+  async {
+    let emails = Mail.list folder (Con.height() - Renderer.FIRST_EMAIL_LINE - 1)
+    agent.Post(NewEmails(folder, emails))
+  } |> Async.Start
+
+
+let update (ch: char) (state: State) agent =
   let keys = state.settings.keys
 
   let actions = Map.ofList [
@@ -20,18 +28,14 @@ let update (ch: char) (state: State) =
       { s with currentEmail = s.currentEmail - 1 }
     ))
     keys["next_folder"], ((fun s -> s.currentFolder < state.folders.Length - 1), (fun s ->
-      let s = { s with currentFolder = s.currentFolder + 1 }
-      let emails = Mail.list (currentFolder s) (Con.height() - Renderer.FIRST_EMAIL_LINE - 1)
-      { s with
-          emails = Map.add (currentFolder s) emails s.emails
-      }
+      let newState = { s with currentFolder = s.currentFolder + 1 }
+      fetchEmails (currentFolder newState) agent |> ignore
+      newState
     ))
     keys["prev_folder"], ((fun s -> s.currentFolder > 0), (fun s ->
-      let s = { s with currentFolder = s.currentFolder - 1 }
-      let emails = Mail.list (currentFolder s) (Con.height() - Renderer.FIRST_EMAIL_LINE - 1)
-      { s with
-          emails = Map.add (currentFolder s) emails s.emails
-      }
+      let newState = { s with currentFolder = s.currentFolder - 1 }
+      fetchEmails (currentFolder newState) agent |> ignore
+      newState
     ))
   ]
 

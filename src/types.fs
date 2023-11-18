@@ -50,3 +50,8 @@ type State = {
   currentEmail: int
 }
 
+type Msg =
+  | Update of char
+  | NewEmails of FolderName * Emails
+  | Fetch of AsyncReplyChannel<State>
+
