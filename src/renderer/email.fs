@@ -4,6 +4,9 @@ open Himavan
 open System.Text
 open System.Globalization
 
+let HEADER_START_Y = 2
+let FIRST_EMAIL_START_Y = 3
+
 let FIELD_COUNT = 5
 let SEPARATOR = "│"
 let SEPARATOR_COLOR = Color.Black
@@ -101,11 +104,11 @@ let headerColumn field width separator =
   Con.underline $"{text}{padding}" Color.White Con.defaultBg
 
 
-let render y selected (emails: Map<string, Email>) =
-  Con.moveTo 0 y
+let render selected (emails: Map<string, Email>) =
+  Con.moveTo 0 HEADER_START_Y
 
   let emailList =
-    let emailCount = min (Con.height () - y) emails.Count
+    let emailCount = min (Con.height () - HEADER_START_Y) emails.Count
     emails
     |> Map.toList
     |> List.sortByDescending(fun (id, email) -> email.date)

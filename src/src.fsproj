@@ -15,6 +15,8 @@
     <Compile Include="settings.fs" />
     <Compile Include="con.fs" />
     <Compile Include="renderer/measure.fs" />
+    <Compile Include="renderer/folders.fs" />
+    <Compile Include="renderer/status_line.fs" />
     <Compile Include="renderer/email.fs" />
     <Compile Include="renderer/all.fs" />
     <Compile Include="mail.fs" />

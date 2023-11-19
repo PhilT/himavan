@@ -14,11 +14,6 @@ let state = {
 }
 
 let currentFolder = State.currentFolder state
-//let emails = Mail.list currentFolder (Con.height() - Renderer.FIRST_EMAIL_LINE - 1)
-//let newState = {
-//  state with
-//    emails = Map.add currentFolder emails Map.empty
-//}
 
 Renderer.All.setup ()
 Renderer.All.update state Map.empty

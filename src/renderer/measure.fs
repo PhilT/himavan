@@ -31,8 +31,11 @@ let calculateCharWidths text =
 
 
 let unicodeColumn text widths columnWidth =
-  let i = widths |> List.findIndexBack(fun w -> w <= columnWidth)
-  let length = widths[i]
-  let padding = String.replicate (columnWidth - length) " "
-  let text = StringInfo(text).SubstringByTextElements(0, i + 1)
-  $"{text}{padding}"
+  if text = "" then
+    String.replicate columnWidth " "
+  else
+    let i = widths |> List.findIndexBack(fun w -> w <= columnWidth)
+    let length = widths[i]
+    let padding = String.replicate (columnWidth - length) " "
+    let text = StringInfo(text).SubstringByTextElements(0, i + 1)
+    $"{text}{padding}"
