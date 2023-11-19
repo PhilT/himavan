@@ -51,6 +51,8 @@ type State = {
 
 type Msg =
   | Update of State
+  | Notice of string
+  | Error of string
   | NewEmails of FolderName * Emails
   | Fetch of AsyncReplyChannel<State>
 

@@ -46,7 +46,7 @@ let runCmd exe args (stdin: string option) =
 
   p.WaitForExit()
 
-  { exitCode = p.ExitCode; out = output.ToString(); err = error.ToString() }
+  { exitCode = p.ExitCode; out = $"{output}"; err = $"{error}" }
 
 
 let runHim cmd folder ids options (stdin: string option) =
@@ -103,4 +103,13 @@ let write () =
 let mv id src dest = runHim "move" src [id] [dest] None
 let delete id folder = runHim "delete" folder [id] [] None
 let read id folder = runHim "read" folder [id] [] None
+
+
+let asList (emails: Emails) =
+  let emailCount = min (Con.height () - Renderer.Email.HEADER_START_Y) emails.Count
+  emails
+  |> Map.toList
+  |> List.map(fun (id, email) -> email)
+  |> List.sortByDescending(fun email -> email.date)
+  |> List.take emailCount
 

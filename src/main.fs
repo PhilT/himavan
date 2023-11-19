@@ -16,7 +16,7 @@ let state = {
 let currentFolder = State.currentFolder state
 
 Renderer.All.setup ()
-Renderer.All.update state Map.empty
+Renderer.All.update state []
 
 let rec agent = MailboxProcessor.Start(fun inbox ->
   let rec loop state =
@@ -27,6 +27,12 @@ let rec agent = MailboxProcessor.Start(fun inbox ->
       match msg with
       | Update(state) ->
         Renderer.All.update state (State.currentEmails state)
+        return! loop state
+      | Notice(message) ->
+        Renderer.StatusLine.notice message
+        return! loop state
+      | Error(message) ->
+        Renderer.StatusLine.error message
         return! loop state
       | NewEmails(folder, emails) ->
         let newState = { state with emails = Map.add folder emails state.emails }
