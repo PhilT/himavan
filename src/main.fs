@@ -43,6 +43,8 @@ let rec agent = MailboxProcessor.Start(fun inbox ->
   loop state
 )
 
+let responsiveness = Int32.Parse state.settings.general["response_time"]
+
 // Get the first email folder
 State.fetchEmails (State.currentFolder state) agent |> ignore
 
@@ -54,7 +56,7 @@ let rec keyLoop () =
       //let newState = agent.PostAndReply((fun channel -> Fetch channel))
       ch = state.settings.keys["quit"]
     | None ->
-      Threading.Thread.Sleep(Int32.Parse state.settings.general["response_time"])
+      Threading.Thread.Sleep(responsiveness)
       false
 
   if not quit then

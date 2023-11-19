@@ -11,7 +11,7 @@ prev_folder = h
 next_folder = l
 
 [general]
-response_time = 100
+response_time = 20
 
 [debug]
 logging = off
