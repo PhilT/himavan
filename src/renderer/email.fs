@@ -7,6 +7,7 @@ open System.Globalization
 let FIELD_COUNT = 5
 let SEPARATOR = "│"
 let SEPARATOR_COLOR = Color.Black
+let IGNORE = -1
 
 type EmailIndexOf =
   | ID = 0
@@ -53,9 +54,11 @@ let flagsToString (flags: string list) =
   flagString
 
 
-let column (text: string) column (width: int) separator bg =
+let column (text: string) column (width: int) x separator bg =
   let text = if (String.length text) > width then (text[0..width - 1]) else text
   let padding = String.replicate (width - (String.length text)) " "
+  //Logger.write "Renderer.Email" "column" $"x,y: {x},{Con.currY()}"
+  //if x > IGNORE then System.Console.CursorLeft <- x
   if separator then Con.write SEPARATOR SEPARATOR_COLOR bg
   Con.write $"{text}{padding}" EmailColors[int column] bg
 
@@ -119,6 +122,12 @@ let render y selected (emails: Map<string, Email>) =
   let fromWidth = min fromWidth (subjectFromWidth / 3 * 1)
   let subjectWidth = subjectFromWidth - fromWidth
 
+  let idPosition = 0
+  let flagsPosition = idWidth
+  let subjectPosition = flagsPosition + 1 + flagsWidth
+  let fromPosition = subjectPosition + 1 + subjectWidth
+  let datePosition = fromPosition + 1 + fromWidth
+
   headerColumn EmailIndexOf.ID idWidth false
   headerColumn EmailIndexOf.FLAGS flagsWidth true
   headerColumn EmailIndexOf.SUBJECT subjectWidth true
@@ -127,13 +136,14 @@ let render y selected (emails: Map<string, Email>) =
 
   emailList
   |> List.iteri (fun i (id, email) ->
+    //Con.moveTo 0 (y + i)
     let bg = if i = selected then Color.Black else Con.defaultBg
 
-    column id EmailIndexOf.ID idWidth false bg
-    column (flagsToString email.flags) EmailIndexOf.FLAGS flagsWidth true bg
+    column id EmailIndexOf.ID idWidth IGNORE false bg
+    column (flagsToString email.flags) EmailIndexOf.FLAGS flagsWidth IGNORE true bg
     subjectColumn email.subject email.subjectCharWidths subjectWidth |> writeSubject true bg
-    column (from email.from) EmailIndexOf.FROM fromWidth true bg
-    column email.date EmailIndexOf.DATE dateWidth true bg
+    column (from email.from) EmailIndexOf.FROM fromWidth fromPosition true bg
+    column email.date EmailIndexOf.DATE dateWidth IGNORE true bg
   )
 
   Con.clearToBottom (Con.currY())

@@ -28,14 +28,14 @@ let writeAt (text: string) x y fg bg =
 
 let nextChar () =
   if Console.KeyAvailable then
-    let key = Console.ReadKey()
+    let key = Console.ReadKey(true)
     Some(key.KeyChar)
   else
     None
 
 
 let getChar () =
-  let key = Console.ReadKey()
+  let key = Console.ReadKey(true)
   key.KeyChar
 
 let clear () = Console.Clear()
@@ -66,6 +66,8 @@ let clearToBottom fromY =
 
 
 let setup () =
+  Console.OutputEncoding <- System.Text.Encoding.UTF8
+
   clear ()
   hideCursor ()
 

@@ -15,32 +15,38 @@ let info (str: string) =
   let len = info.LengthInTextElements
   let substr = info.SubstringByTextElements(0, len)
 
-
   printfn "%A" str
-  printfn "Char length: %A" (StringInfo(str).LengthInTextElements)
+  printfn "Str length: %A" str.Length
+  printfn "Text element length: %A" (StringInfo(str).LengthInTextElements)
+
+  str
+  |> String.iteri (fun i c ->
+    printfn "Char %A: %A" i (Char.IsSurrogate(c))
+  )
+
   printfn "Unicode category: %A" (cat)
   (if Char.IsHighSurrogate(str, 0) && Char.IsLowSurrogate(str, 1) then
     $"Yes: {StringInfo.GetNextTextElementLength(str)} Wcwidth of 2nd char: {UnicodeCalculator.GetWidth(str[1])}"
   else
     "No")
   |> printfn "Surrogate: %A"
-  printfn "Wcwidth: %A" (UnicodeCalculator.GetWidth(Char.ConvertToUtf32(str, 0), Unicode.Version_15_1_0))
-  //printfn "Normalize %A" (str.Normalize(NormalizationForm.FormKD).Length)
+  printfn "Wcwidth: %A" (UnicodeCalculator.GetWidth(Char.ConvertToUtf32(str, 0)))
   printfn "UTF32: %A" (Char.ConvertToUtf32(str, 0))
+  printfn "Combining chars: %A" (StringInfo.ParseCombiningCharacters(str))
+
 
   printfn ""
 
+info "↵"
+info "\uD800\uDC00"
 info "A"
 info "✨"
-info "↵"
 info "🐂"
 info "🚀"
 info "✊"
-info "🎯"
-info "✂"
 info "⚔️"
-info "❄️"
-info "\uD800\uDC00"
+info "🧑‍🤝‍🧑"
+info "✍️"
 
 //Console.SetCursorPosition(10, 10)
 //Console.Write("✨")
@@ -86,5 +92,3 @@ info "\uD800\uDC00"
 //printfn "Proper substr"
 //substringOf s |> printfn "%A"
 //substringOf s2 |> printfn "%A"
-//
-//// 11
