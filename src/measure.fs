@@ -1,8 +1,29 @@
-module Himavan.Renderer.Measure
+module Himavan.Measure
 
 open System.Globalization
 open System
 open Wcwidth
+open System.Text
+
+open Himavan
+
+let REPLACEMENT_CHAR = "�"
+
+let replaceCombiningChars text =
+  let en = StringInfo.GetTextElementEnumerator(text)
+  let rec loop newText =
+    let another = en.MoveNext()
+    if another then
+      let ch = en.GetTextElement()
+      (if ch.Length > 2 then REPLACEMENT_CHAR else ch) :: newText
+      |> loop
+    else
+      newText
+
+  loop []
+  |> List.rev
+  |> (fun textArray -> String.Join("", textArray))
+
 
 let calculateCharWidths text =
   let en = StringInfo.GetTextElementEnumerator(text)
@@ -13,21 +34,15 @@ let calculateCharWidths text =
       let ch = en.GetTextElement()
 
       let width =
-        if ch.Length = 2 && not (Char.IsSurrogatePair(ch, 0)) then
-          2
+        if ch.Length > 1 && not (Char.IsSurrogate(ch, 0)) then
+          ch.Length
         else
-          [0..ch.Length - 1]
-          |> Seq.sumBy(fun i ->
-            if Char.IsLowSurrogate(ch, i) then
-              0
-            else
-              UnicodeCalculator.GetWidth(Char.ConvertToUtf32(ch, i))
-          )
+          UnicodeCalculator.GetWidth(Char.ConvertToUtf32(ch, 0))
       loop (totalWidth + width) (totalWidth + width :: lst)
     else
       lst |> List.rev
 
-  loop 0 List.empty
+  loop 0 []
 
 
 let unicodeColumn text widths columnWidth =

@@ -11,6 +11,8 @@ let state = {
   emails = Map.empty
   currentFolder = 0
   currentEmail = 0
+  windowHeight = Con.height ()
+  nav = Nav.LIST
 }
 
 let currentFolder = State.currentFolder state
@@ -26,7 +28,17 @@ let rec agent = MailboxProcessor.Start(fun inbox ->
       let! msg = inbox.Receive()
       match msg with
       | Update(state) ->
-        Renderer.All.update state (State.currentEmails state)
+        if state.nav = Nav.LIST then
+          Renderer.All.update state (State.currentEmails state)
+        return! loop state
+      | Opening(emailId) ->
+        Renderer.StatusLine.notice $"Opening email {emailId}"
+        Renderer.Body.prepare ()
+        Logger.write "Main" "agent" "Done preparing"
+        return! loop state
+      | ReadEmail(body) ->
+        Logger.write "Main" "agent" "about to render"
+        Renderer.Body.render body
         return! loop state
       | Notice(message) ->
         Renderer.StatusLine.notice message

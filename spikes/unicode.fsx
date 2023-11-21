@@ -47,6 +47,7 @@ info "✊"
 info "⚔️"
 info "🧑‍🤝‍🧑"
 info "✍️"
+info "🏃‍♀️"
 
 //Console.SetCursorPosition(10, 10)
 //Console.Write("✨")

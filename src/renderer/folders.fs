@@ -4,7 +4,6 @@ open System
 
 open Himavan
 
-let START_Y = 0
 
 let FolderColors = {
   selected = Color.Black, Color.Blue
@@ -12,7 +11,7 @@ let FolderColors = {
 }
 
 let render selected (tabs: string list) =
-  Con.moveTo 0 START_Y
+  Con.moveTo 0 FOLDERS_START_Y
 
   tabs
   |> List.iteri (fun i tab ->

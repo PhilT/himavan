@@ -1,14 +1,17 @@
 [keys]
+back = ]
 quit = q
 down = j
 up = k
 delete = D
-read = \n
+read = \r
 archive = A
 spam = S
 write = w
 prev_folder = h
 next_folder = l
+goto_top = gg
+goto_bottom = G
 
 [general]
 response_time = 20

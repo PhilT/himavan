@@ -4,21 +4,6 @@ open Himavan
 open System.Text
 open System.Globalization
 
-let HEADER_START_Y = 2
-let FIRST_EMAIL_START_Y = 3
-
-let FIELD_COUNT = 5
-let SEPARATOR = "│"
-let SEPARATOR_COLOR = Color.Black
-
-type EmailIndexOf =
-  | ID = 0
-  | FLAGS = 1
-  | SUBJECT = 2
-  | FROM = 3
-  | DATE = 4
-
-
 let EmailColors = [Color.Red; Color.White; Color.Green; Color.Blue; Color.Yellow]
 let EmailColumns = [
   { name = "ID"; color = EmailColors[int EmailIndexOf.ID] }

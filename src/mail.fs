@@ -12,13 +12,6 @@ let HIMALAYA_DRAFT_PATH = "/tmp/himalaya-draft.eml"
 
 let editor = System.Environment.GetEnvironmentVariable("EDITOR")
 
-type ProcessResult = {
-  exitCode: int
-  out: string
-  err: string
-}
-
-
 let runCmd exe args (stdin: string option) =
   Logger.write "Mail" "runCmd" $"{exe} {args} {stdin}"
 
@@ -73,9 +66,11 @@ let list folder limit =
   //TODO: Handle response.exitCode <> 0
   JsonSerializer.Deserialize<Email list> response.out
   |> List.fold (fun emails email ->
-    let subjectCharWidths = Renderer.Measure.calculateCharWidths email.subject
+    let subject = Measure.replaceCombiningChars email.subject
+    let subjectCharWidths = Measure.calculateCharWidths subject
     let email = {
       email with
+        subject = subject
         subjectCharWidths = subjectCharWidths
         from = {
           name = if email.from.name = null then "" else email.from.name
@@ -105,11 +100,10 @@ let delete id folder = runHim "delete" folder [id] [] None
 let read id folder = runHim "read" folder [id] [] None
 
 
-let asList (emails: Emails) =
-  let emailCount = min (Con.height () - Renderer.Email.HEADER_START_Y) emails.Count
+let asList (emails: Emails) windowHeight =
+  let emailCount = min (windowHeight - HEADER_START_Y) emails.Count
   emails
   |> Map.toList
   |> List.map(fun (id, email) -> email)
   |> List.sortByDescending(fun email -> email.date)
   |> List.take emailCount
-

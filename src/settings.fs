@@ -16,9 +16,13 @@ let fetch () =
       currentSection <- line
       settings
     else
+      Logger.write "Settings" "fetch" line
       let keyValue =
         line.Split("=")
         |> Array.map(fun (x: string) -> x.Trim())
+        |> Array.map(fun x -> x.Replace("\\r", "\r"))
+
+      Logger.write "Settings" "fetch" (sprintf "%s: <<%c>>" keyValue[0] ((keyValue[1].ToCharArray()[0])))
 
       match currentSection with
       | "[keys]" ->

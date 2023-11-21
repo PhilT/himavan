@@ -10,17 +10,22 @@
 
   <ItemGroup>
     <Compile Include="logger.fs" />
+    <Compile Include="const.fs" />
     <Compile Include="types.fs" />
     <Compile Include="path.fs" />
     <Compile Include="settings.fs" />
+    <Compile Include="measure.fs" />
+    <Compile Include="mail.fs" />
+    <Compile Include="state.fs" />
+
+    <!-- Only the agent should know about the renderers -->
     <Compile Include="con.fs" />
-    <Compile Include="renderer/measure.fs" />
     <Compile Include="renderer/folders.fs" />
     <Compile Include="renderer/status_line.fs" />
     <Compile Include="renderer/email.fs" />
+    <Compile Include="renderer/body.fs" />
     <Compile Include="renderer/all.fs" />
-    <Compile Include="mail.fs" />
-    <Compile Include="state.fs" />
+
     <Compile Include="main.fs" />
   </ItemGroup>
 
