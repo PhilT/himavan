@@ -81,20 +81,20 @@ let readEmail (agent: MailboxProcessor<Msg>) state =
     state
 
 
-let update (ch: char) (state: State) agent =
+let update (action: string) (state: State) agent =
   let keys = state.settings.keys
   let emails = currentEmails state
 
   let actions = Map.ofList [
-    keys["down"], (
+    "down", (
       (fun s -> s.currentEmail < emails.Length - 1),
       (fun s -> { s with currentEmail = s.currentEmail + 1 })
     )
-    keys["up"], (
+    "up", (
       (fun s -> s.currentEmail > 0),
       (fun s -> { s with currentEmail = s.currentEmail - 1 })
     )
-    keys["next_folder"], (
+    "next_folder", (
       (fun s -> s.currentFolder < state.folders.Length - 1),
       (fun s ->
         { s with currentFolder = s.currentFolder + 1 }
@@ -102,7 +102,7 @@ let update (ch: char) (state: State) agent =
         |> fetchEmails agent
       )
     )
-    keys["prev_folder"], (
+    "prev_folder", (
       (fun s -> s.currentFolder > 0),
       (fun s ->
         { s with currentFolder = s.currentFolder - 1 }
@@ -110,30 +110,31 @@ let update (ch: char) (state: State) agent =
         |> fetchEmails agent
       )
     )
-    keys["delete"], (
+    "delete", (
       (fun s -> emails.Length > 0),
       (fun s -> doEmail (fun id folder -> Mail.delete id folder) agent s)
     )
-    keys["archive"], (
+    "archive", (
       (fun s -> emails.Length > 0),
       (fun s -> doEmail (fun id folder -> Mail.mv id folder "Archive") agent s)
     )
-    keys["spam"], (
+    "spam", (
       (fun s -> emails.Length > 0),
       (fun s -> doEmail (fun id folder -> Mail.mv id folder "Spam") agent s)
     )
-    keys["read"], (
+    "read", (
       (fun s -> emails.Length > 0),
       (fun s -> readEmail agent s)
     )
-    keys["back"], (
+    "back", (
       (fun s -> s.nav = Nav.OPEN),
       (fun s -> { s with nav = Nav.LIST })
     )
+    "quit", (
+      (fun s -> true),
+      (fun s -> agent.Post(Quit); { s with nav = Nav.QUITING })
+    )
   ]
 
-  if actions.ContainsKey(ch) then
-    let pred, action = actions[ch]
-    if (pred state) then (action state) else state
-  else
-    state
+  let pred, action = actions[action]
+  if (pred state) then (action state) else state

@@ -50,6 +50,9 @@ let rec agent = MailboxProcessor.Start(fun inbox ->
         let newState = { state with emails = Map.add folder emails state.emails }
         Renderer.All.update newState (State.currentEmails newState)
         return! loop newState
+      | Quit ->
+        Renderer.All.teardown ()
+        return! loop { state with nav = Nav.QUITING }
       | Fetch(channel) ->
         channel.Reply(state)
         return! loop state
@@ -64,20 +67,22 @@ let responsiveness = Int32.Parse state.settings.general["response_time"]
 State.fetchEmails agent state |> ignore
 
 let rec keyLoop () =
+  let state = agent.PostAndReply((fun channel -> Fetch channel))
   let quit =
-    match Con.nextChar () with
-    | Some(ch) ->
-      let state = agent.PostAndReply((fun channel -> Fetch channel))
-      let newState = State.update ch state agent
-      agent.Post(Update(newState))
-      ch = state.settings.keys["quit"]
+    match Input.wait state.settings.keys with
+    | Some(action) ->
+      if state.nav <> Nav.QUITING then
+        let newState = State.update action state agent
+        agent.Post(Update(newState))
+        false
+      else
+        true
     | None ->
       Threading.Thread.Sleep(responsiveness)
-      false
+      state.nav = Nav.QUITING
 
   if not quit then
     keyLoop ()
 
 keyLoop ()
 
-Renderer.All.teardown ()

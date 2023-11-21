@@ -32,7 +32,7 @@ type Color = System.ConsoleColor
 type Emails = Map<string, Email>
 type FolderName = string
 type Folders = List<FolderName>
-type Keys = Map<string, char>
+type Keys = Map<string, string>
 
 type Column = {
   name: string
@@ -53,6 +53,7 @@ type Settings = {
 type Nav =
   | LIST
   | OPEN
+  | QUITING
 
 type State = {
   settings: Settings
@@ -71,6 +72,7 @@ type Msg =
   | Opening of string
   | ReadEmail of string
   | NewEmails of FolderName * Emails
+  | Quit
   | Fetch of AsyncReplyChannel<State>
 
 type ProcessResult = {

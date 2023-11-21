@@ -29,7 +29,7 @@ let writeAt (text: string) x y fg bg =
 let nextChar () =
   if Console.KeyAvailable then
     let key = Console.ReadKey(true)
-    Some(key.KeyChar)
+    Some(key)
   else
     None
 
@@ -74,6 +74,6 @@ let setup () =
 
 let teardown () =
   reset ()
-  showCursor ()
   clear ()
+  showCursor ()
 

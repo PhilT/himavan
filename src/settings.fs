@@ -10,25 +10,23 @@ let fetch () =
   File.ReadAllLines(Path.join "settings.toml")
   |> List.ofArray
   |> List.fold (fun (settings: Settings) (line: string) ->
-    if line = "" then
+    if line = "" || line.StartsWith("#") then
       settings
     elif line.StartsWith("[") && line.EndsWith("]") then
       currentSection <- line
       settings
     else
-      Logger.write "Settings" "fetch" line
       let keyValue =
         line.Split("=")
         |> Array.map(fun (x: string) -> x.Trim())
-        |> Array.map(fun x -> x.Replace("\\r", "\r"))
 
-      Logger.write "Settings" "fetch" (sprintf "%s: <<%c>>" keyValue[0] ((keyValue[1].ToCharArray()[0])))
+      Logger.write "Settings" "fetch" (sprintf "%A" keyValue)
 
       match currentSection with
       | "[keys]" ->
 
         { settings with
-            keys = Map.add keyValue[0] (keyValue[1].ToCharArray()[0]) settings.keys
+            keys = Map.add keyValue[1] keyValue[0] settings.keys
         }
       | "[general]" ->
         { settings with

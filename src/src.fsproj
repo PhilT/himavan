@@ -20,6 +20,7 @@
 
     <!-- Only the agent should know about the renderers -->
     <Compile Include="con.fs" />
+    <Compile Include="input.fs" />
     <Compile Include="renderer/folders.fs" />
     <Compile Include="renderer/status_line.fs" />
     <Compile Include="renderer/email.fs" />
