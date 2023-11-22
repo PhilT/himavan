@@ -69,7 +69,7 @@ State.fetchEmails agent state |> ignore
 let rec keyLoop () =
   let state = agent.PostAndReply((fun channel -> Fetch channel))
   let quit =
-    match Input.wait state.settings.keys with
+    match Input.wait state.settings.keys responsiveness with
     | Some(action) ->
       if state.nav <> Nav.QUITING then
         let newState = State.update action state agent

@@ -114,6 +114,14 @@ let update (action: string) (state: State) agent =
         |> fetchEmails agent
       )
     )
+    "bottom", (
+      (fun s -> emails.Length > 0),
+      (fun s -> { s with currentEmail = emails.Length - 1 })
+    )
+    "top", (
+      (fun s -> emails.Length > 0),
+      (fun s -> { s with currentEmail = 0 })
+    )
     "delete", (
       (fun s -> emails.Length > 0),
       (fun s -> doEmail (fun id folder -> Mail.delete id folder) agent s)

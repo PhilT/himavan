@@ -35,20 +35,38 @@ let SpecialKeys =
   ]
   |> Map.ofList
 
-let wait (keys: Keys) =
-  match Con.nextChar () with
-  | Some(ch) ->
-    let key =
-      if SpecialKeys.ContainsKey(ch.Key) then
-        SpecialKeys[ch.Key]
+
+let startMatches (key: string) (keys: Keys) =
+  keys
+  |> Map.tryFindKey (fun k v -> key.StartsWith(key) )
+
+let TIMEOUT = 2000
+let wait (keys: Keys) responsiveness =
+  let rec loop prevKeys timeout =
+    match Con.nextChar () with
+    | Some(ch) ->
+      let key =
+        if SpecialKeys.ContainsKey(ch.Key) then
+          SpecialKeys[ch.Key]
+        else
+          ch.KeyChar.ToString()
+      let key = prevKeys + key
+
+      Logger.write "Input" "wait" $"{key}"
+
+      if keys.ContainsKey(key) then
+        Some(keys[key])
+      elif (startMatches key keys).IsSome then
+        loop key TIMEOUT
+      elif timeout > 0 then
+        loop key (timeout - responsiveness)
       else
-        ch.KeyChar.ToString()
+        None
+    | None ->
+      if timeout > 0 then
+        Threading.Thread.Sleep(responsiveness)
+        loop prevKeys (timeout - responsiveness)
+      else
+        None
 
-    Logger.write "Input" "wait" $"{key}"
-
-    if keys.ContainsKey(key) then
-      Some(keys[key])
-    else
-      None
-  | None ->
-    None
+  loop "" TIMEOUT
