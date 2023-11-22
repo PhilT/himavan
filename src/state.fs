@@ -42,8 +42,12 @@ let doEmail (action: string -> string -> ProcessResult) (agent: MailboxProcessor
   state
 
 
-let addBody folder email body state =
+let addEmailBody folder email (body: string) state =
   let emails = state.emails[currentFolder state]
+  let body =
+    body.Replace("\r", "").Split("\n")
+    |> Array.map(fun line -> line.Trim())
+    |> (fun a -> String.Join("\n", a).Replace("\n\n\n", "\n\n"))
   let emailsForFolder = Map.add email.id { email with body = body } emails
   let emails = Map.add folder emailsForFolder state.emails
   { state with emails = emails }
@@ -64,7 +68,7 @@ let readEmail (agent: MailboxProcessor<Msg>) state =
     if email.body = null then
       let response = Mail.read email.id folder
       if response.exitCode = 0 then
-        addBody folder email (jsonToString response.out) state
+        addEmailBody folder email (jsonToString response.out) state
       else
         agent.Post(Error(response.err))
         state
