@@ -4,16 +4,6 @@ open Himavan
 open System.Text
 open System.Globalization
 
-let EmailColors = [Color.Red; Color.White; Color.Green; Color.Blue; Color.Yellow]
-let EmailColumns = [
-  { name = "ID"; color = EmailColors[int EmailIndexOf.ID] }
-  { name = "FLAGS"; color = EmailColors[int EmailIndexOf.FLAGS] }
-  { name = "SUBJECT"; color = EmailColors[int EmailIndexOf.SUBJECT] }
-  { name = "FROM"; color = EmailColors[int EmailIndexOf.FROM] }
-  { name = "DATE"; color = EmailColors[int EmailIndexOf.DATE] }
-]
-
-
 let availableFlags =
   [
     "Unseen", "✷"   // 0x2737
@@ -41,20 +31,20 @@ let flagsToString (flags: string list) =
   flagString
 
 
-let column (text: string) column (width: int) separator bg =
+let column (text: string) (width: int) separator style =
   let text = if (String.length text) > width then (text[0..width - 1]) else text
   let padding = String.replicate (width - (String.length text)) " "
-  if separator then Con.write SEPARATOR SEPARATOR_COLOR bg
-  Con.write $"{text}{padding}" EmailColors[int column] bg
+  if separator then Con.write SEPARATOR { style with fg = Color.BLACK }
+  Con.write $"{text}{padding}" style
 
 
 let subjectColumn subject widths (columnWidth: int) =
   Measure.unicodeColumn subject widths columnWidth
 
 
-let writeSubject separator bg text =
-  if separator then Con.write SEPARATOR SEPARATOR_COLOR bg
-  Con.write text EmailColors[int EmailIndexOf.SUBJECT] bg
+let writeSubject separator style text =
+  if separator then Con.write SEPARATOR { style with fg = Color.BLACK }
+  Con.write text style
 
 
 let from (address: Address) =
@@ -78,15 +68,14 @@ let maxWidthOf lst field =
   |> List.max
 
 
-let headerColumn field width separator =
-  let text = EmailColumns[int field].name
+let headerColumn text width separator =
   let text = if (String.length text) > width then (text[0..width - 1]) else text
   let padding = String.replicate (width - (String.length text)) " "
-  if separator then Con.write SEPARATOR SEPARATOR_COLOR Con.defaultBg
-  Con.underline $"{text}{padding}" Color.White Con.defaultBg
+  if separator then Con.write SEPARATOR (Con.normalStyle Color.BLACK Color.DEFAULT)
+  Con.write $"{text}{padding}" (Con.underline Color.WHITE Color.DEFAULT)
 
 
-let render selected (emails: Email list) =
+let render current (selected: string Set) (emails: Email list) =
   Con.moveTo 0 HEADER_START_Y
 
   let separatorCount = FIELD_COUNT - 1
@@ -100,22 +89,28 @@ let render selected (emails: Email list) =
   let fromWidth = min fromWidth (subjectFromWidth / 3 * 1)
   let subjectWidth = subjectFromWidth - fromWidth
 
-  headerColumn EmailIndexOf.ID idWidth false
-  headerColumn EmailIndexOf.FLAGS flagsWidth true
-  headerColumn EmailIndexOf.SUBJECT subjectWidth true
-  headerColumn EmailIndexOf.FROM fromWidth true
-  headerColumn EmailIndexOf.DATE dateWidth true
+  headerColumn "ID" idWidth false
+  headerColumn "FLAGS" flagsWidth true
+  headerColumn "SUBJECT" subjectWidth true
+  headerColumn "FROM" fromWidth true
+  headerColumn "DATE" dateWidth true
+
+  Con.write "" (Con.normalStyle Color.DEFAULT Color.DEFAULT)
 
   emails
   |> List.iteri (fun i email ->
-    //Con.moveTo 0 (y + i)
-    let bg = if i = selected then Color.Black else Con.defaultBg
+    let isCurrent = i = current
+    let isSelected = Set.contains email.id selected
+    let bg =
+      if isCurrent || isSelected then Color.BLACK
+      else Color.DEFAULT
 
-    column email.id EmailIndexOf.ID idWidth false bg
-    column (flagsToString email.flags) EmailIndexOf.FLAGS flagsWidth true bg
-    subjectColumn email.subject email.subjectCharWidths subjectWidth |> writeSubject true bg
-    column (from email.from) EmailIndexOf.FROM fromWidth true bg
-    column email.date EmailIndexOf.DATE dateWidth true bg
+    column email.id idWidth false (Con.highlight Color.RED bg isSelected isCurrent)
+    column (flagsToString email.flags) flagsWidth true (Con.highlight Color.WHITE bg isSelected isCurrent)
+    subjectColumn email.subject email.subjectCharWidths subjectWidth
+    |> writeSubject true (Con.highlight Color.GREEN bg isSelected isCurrent)
+    column (from email.from) fromWidth true (Con.highlight Color.BLUE bg isSelected isCurrent)
+    column email.date dateWidth true (Con.highlight Color.YELLOW bg isSelected isCurrent)
   )
 
   Con.clearToBottom (Con.currY())

@@ -66,7 +66,10 @@ let list folder limit =
   //TODO: Handle response.exitCode <> 0
   JsonSerializer.Deserialize<Email list> response.out
   |> List.fold (fun emails email ->
-    let subject = Measure.replaceCombiningChars email.subject
+    let subject =
+      email.subject
+      |> Measure.replaceCombiningChars
+      |> (fun subject -> subject.Replace("\n", "").Replace("\r", ""))
     let subjectCharWidths = Measure.calculateCharWidths subject
     let email = {
       email with

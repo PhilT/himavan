@@ -2,28 +2,42 @@ module Himavan.Con
 
 open System
 
-let ANSI_NORMAL = "\x1b[0m"
-let ANSI_UNDERLINE = "\x1b[4m"
-
-let defaultBg = Console.BackgroundColor
-let defaultFg = Console.ForegroundColor
-
-let write (text: string) fg bg =
-  Console.ForegroundColor <- fg
-  Console.BackgroundColor <- bg
-  Console.Write(text)
+let normalStyle fg bg =
+  { fg = fg; bg = bg; props = Color.NORMAL }
 
 
-let underline (text: string) fg bg =
-  write $"{ANSI_UNDERLINE}{text}{ANSI_NORMAL}" fg bg
+let underline fg bg =
+  { fg = fg; bg = bg; props = Color.UNDERLINE }
+
+
+let defaultStyle =
+  { fg = Color.DEFAULT; bg = Color.DEFAULT; props = Color.NORMAL }
+
+
+let highlight fg bg highlight current =
+  {
+    fg =
+      if highlight && current then Color.YELLOW
+      elif highlight then Color.WHITE
+      else fg
+    bg = bg
+    props = if highlight then Color.BOLD else Color.NORMAL
+  }
+
+
+let write (text: string) style =
+  let prefix = Color.paint style.fg style.bg style.props
+  let suffix = Color.paint style.fg style.bg $"{Color.DEFAULT}"
+  Console.Write($"{prefix}{text}{suffix}")
+
 
 let moveTo x y =
   Console.SetCursorPosition(x, y)
 
 
-let writeAt (text: string) x y fg bg =
+let writeAt (text: string) x y style =
   moveTo x y
-  write text fg bg
+  write text style
 
 
 let nextChar () =
@@ -53,7 +67,7 @@ let showCursor () = Console.CursorVisible <- true
 let clearTo fromY toY =
   let cells = width() * (toY - fromY)
   Logger.write "Con" "clearTo" $"{fromY} {toY} {cells}"
-  writeAt (String.replicate cells " ") 0 fromY defaultFg defaultBg
+  writeAt (String.replicate cells " ") 0 fromY defaultStyle
 
 
 let clearLine y =

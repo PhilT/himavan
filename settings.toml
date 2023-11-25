@@ -29,6 +29,7 @@ top = gg
 bottom = G
 prev_folder = h
 next_folder = l
+select = <space>
 
 # Actions
 delete = D

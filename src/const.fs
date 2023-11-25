@@ -11,5 +11,4 @@ let FIRST_EMAIL_START_Y = 3
 
 let FIELD_COUNT = 5
 let SEPARATOR = "│"
-let SEPARATOR_COLOR = ConsoleColor.Black
 

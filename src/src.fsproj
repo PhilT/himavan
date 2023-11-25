@@ -16,9 +16,11 @@
     <Compile Include="settings.fs" />
     <Compile Include="measure.fs" />
     <Compile Include="mail.fs" />
+    <Compile Include="email.fs" />
     <Compile Include="state.fs" />
 
     <!-- Only the agent should know about the renderers -->
+    <Compile Include="color.fs" />
     <Compile Include="con.fs" />
     <Compile Include="input.fs" />
     <Compile Include="renderer/folders.fs" />

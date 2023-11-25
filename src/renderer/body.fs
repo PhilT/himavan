@@ -9,5 +9,5 @@ let prepare () =
 
 
 let render (body: string) =
-  Con.writeAt body 0 BODY_START_Y Color.White Con.defaultBg
+  Con.writeAt body 0 BODY_START_Y (Con.normalStyle Color.WHITE Color.DEFAULT)
 

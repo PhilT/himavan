@@ -18,7 +18,7 @@ let update (state: State) emails =
   try
     Folders.render state.currentFolder state.folders
 
-    Renderer.Email.render state.currentEmail emails
+    Renderer.Email.render state.currentEmail state.selectedEmailIds emails
   with
     | e ->
       Renderer.StatusLine.error $"ERROR: {e.Message} Turn on logging and check the log file."

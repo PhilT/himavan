@@ -6,8 +6,8 @@ open Himavan
 
 
 let FolderColors = {
-  selected = Color.Black, Color.Blue
-  normal = Color.Blue, Con.defaultBg
+  selected = Color.BLACK, Color.BLUE
+  normal = Color.BLUE, Color.DEFAULT
 }
 
 let render selected (tabs: string list) =
@@ -21,7 +21,7 @@ let render selected (tabs: string list) =
       else
         FolderColors.normal
 
-    Con.write $" {tab} " fgColor bgColor
+    Con.write $" {tab} " (Con.normalStyle fgColor bgColor)
   )
 
 
