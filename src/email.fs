@@ -29,9 +29,14 @@ let fetchList (agent: MailboxProcessor<Msg>) state =
 let runFunc (action: string -> string -> ProcessResult) (agent: MailboxProcessor<Msg>) state =
   let folder = currentFolder state
   let emails = currentList state
-  let id = emails[state.currentEmail].id
+  let ids =
+    if Set.count state.selectedEmailIds > 0 then
+      state.selectedEmailIds |> Set.toList
+    else
+      [emails[state.currentEmail].id]
+
   async {
-    let response = action id folder
+    let response = action (String.Join(" ", ids)) folder
     if response.exitCode = 0 then
       agent.Post(Notice(jsonToString response.out))
       fetchList agent state |> ignore
