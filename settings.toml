@@ -16,7 +16,7 @@
 # <pageup>       Page-Up
 # <pagedown>     Page-Down
 # <C-key>        Ctrl + key    # Not implemented yet
-# <S-key>        Shift + key   # Not implemented yet
+# <S-key>        Shift + key   # Not implemented yet but can use uppercase characters instead
 # <A-key>        Alt + key     # Not implemented yet
 
 [keys]
@@ -30,6 +30,9 @@ bottom = G
 prev_folder = h
 next_folder = l
 select = <space>
+
+# Views
+show_addr = <tab>
 
 # Actions
 delete = D

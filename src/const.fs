@@ -9,6 +9,5 @@ let HEADER_START_Y = 2
 let BODY_START_Y = 2
 let FIRST_EMAIL_START_Y = 3
 
-let FIELD_COUNT = 5
 let SEPARATOR = "│"
 

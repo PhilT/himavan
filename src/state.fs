@@ -56,16 +56,25 @@ let update (action: string) (state: State) agent =
       (fun s -> Email.read agent s)
     )
     "back", (
-      (fun s -> s.nav = Nav.OPEN),
-      (fun s -> { s with nav = Nav.LIST })
+      (fun s -> s.nav |> Set.contains Nav.OPEN),
+      (fun s -> { s with nav = s.nav |> Set.add Nav.LIST |> Set.remove Nav.OPEN })
     )
     "select", (
       (fun s -> emails.Length > 0),
       (fun s -> { s with selectedEmailIds = Email.toggle emails[s.currentEmail].id s.selectedEmailIds })
     )
+    "show_addr", (
+      (fun s -> emails.Length > 0),
+      (fun s ->
+        if s.nav |> Set.contains Nav.ADDR then
+          { s with nav = s.nav |> Set.remove Nav.ADDR }
+        else
+          { s with nav = s.nav |> Set.add Nav.ADDR }
+      )
+    )
     "quit", (
       (fun s -> true),
-      (fun s -> agent.Post(Quit); { s with nav = Nav.QUITING })
+      (fun s -> agent.Post(Quit); { s with nav = Set.ofList [Nav.QUITING] })
     )
   ]
 

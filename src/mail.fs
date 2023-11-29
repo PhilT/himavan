@@ -54,10 +54,13 @@ let runHim cmd folder ids options (stdin: string option) =
 let folders () =
   let response = runHim "folders" "" [] [] None
 
-  //TODO: Handle response.exitCode <> 0
-  JsonSerializer.Deserialize<Folder list> response.out
-  |> List.map (fun folder -> folder.name)
-  |> List.rev
+  if response.exitCode = 0 then
+    JsonSerializer.Deserialize<Folder list> response.out
+    |> List.map (fun folder -> folder.name)
+    |> List.rev
+    |> fun lst -> Ok(lst)
+  else
+    Result.Error response.err
 
 
 let list folder limit =

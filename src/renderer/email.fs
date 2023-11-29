@@ -75,19 +75,33 @@ let headerColumn text width separator =
   Con.write $"{text}{padding}" (Con.underline Color.WHITE Color.DEFAULT)
 
 
-let render current (selected: string Set) (emails: Email list) =
+let renderAddress current (emails: Email list) x y screenWidth =
+  let style = (Con.highlight Color.WHITE Color.BLACK false true)
+  let text = (emails[current]).from.addr
+  let width = screenWidth - x - 1
+  let padding = String.replicate (width - text.Length) " "
+  let text = $" {text}{padding}"
+  Con.writeAt text x (y + 1) style
+
+
+let render current (selected: string Set) (emails: Email list) show_addr =
   Con.moveTo 0 HEADER_START_Y
 
-  let separatorCount = FIELD_COUNT - 1
+  let fieldCount = 5
+  let SEPARATOR = 1
+  let separatorCount = fieldCount - 1
   let idWidth = (maxWidthOf emails "id")
   let flagsWidth = (maxWidthOf emails "flags")
   let fromWidth = (maxWidthOf emails "from")
   let dateWidth = (maxWidthOf emails "date")
+  let screenWidth = Con.width ()
 
   let subjectFromWidth =
-    Con.width () - separatorCount - idWidth - flagsWidth - dateWidth
+    screenWidth - separatorCount - idWidth - flagsWidth - dateWidth
   let fromWidth = min fromWidth (subjectFromWidth / 3 * 1)
   let subjectWidth = subjectFromWidth - fromWidth
+  let fromX = idWidth + SEPARATOR + flagsWidth + SEPARATOR + subjectWidth
+  let fromY = current + FIRST_EMAIL_START_Y
 
   headerColumn "ID" idWidth false
   headerColumn "FLAGS" flagsWidth true
@@ -114,4 +128,8 @@ let render current (selected: string Set) (emails: Email list) =
   )
 
   Con.clearToBottom (Con.currY())
+
+  if emails.Length > 0 && show_addr then
+    renderAddress current emails fromX fromY screenWidth
+
 

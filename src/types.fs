@@ -41,6 +41,7 @@ type Nav =
   | LIST
   | OPEN
   | QUITING
+  | ADDR
 
 type State = {
   settings: Settings
@@ -50,11 +51,12 @@ type State = {
   currentEmail: int
   selectedEmailIds: string Set
   windowHeight: int
-  nav: Nav
+  nav: Nav Set
 }
 
 type Msg =
   | Update of State
+  | Info of string
   | Notice of string
   | Error of string
   | Opening of string

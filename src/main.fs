@@ -5,15 +5,23 @@ open System.IO
 
 Logger.write "Himvan" "Main" "Logging started"
 
+let folders =
+  match Mail.folders () with
+  | Ok(folders) -> folders
+  | Result.Error(msg) ->
+    printfn "Error fetching folders from mail account"
+    printfn "%s" msg
+    []
+
 let state = {
   settings = Settings.fetch ()
-  folders = Mail.folders ()
+  folders = folders
   emails = Map.empty
   currentFolder = 0
   currentEmail = 0
   selectedEmailIds = Set.empty
   windowHeight = Con.height ()
-  nav = Nav.LIST
+  nav = Set.ofList [Nav.LIST]
 }
 
 let currentFolder = Email.currentFolder state
@@ -29,7 +37,7 @@ let rec agent = MailboxProcessor.Start(fun inbox ->
       let! msg = inbox.Receive()
       match msg with
       | Update(state) ->
-        if state.nav = Nav.LIST then
+        if Set.contains Nav.LIST state.nav then
           Renderer.All.update state (Email.currentList state)
         return! loop state
       | Opening(emailId) ->
@@ -40,6 +48,9 @@ let rec agent = MailboxProcessor.Start(fun inbox ->
       | ReadEmail(body) ->
         Logger.write "Main" "agent" "about to render"
         Renderer.Body.render body
+        return! loop state
+      | Info(message) ->
+        Renderer.StatusLine.info message
         return! loop state
       | Notice(message) ->
         Renderer.StatusLine.notice message
@@ -53,7 +64,7 @@ let rec agent = MailboxProcessor.Start(fun inbox ->
         return! loop newState
       | Quit ->
         Renderer.All.teardown ()
-        return! loop { state with nav = Nav.QUITING }
+        return! loop { state with nav = Set.ofList [Nav.QUITING] }
       | Fetch(channel) ->
         channel.Reply(state)
         return! loop state
@@ -72,7 +83,7 @@ let rec keyLoop () =
   let quit =
     match Input.wait state.settings.keys responsiveness with
     | Some(action) ->
-      if state.nav <> Nav.QUITING then
+      if not (Set.contains Nav.QUITING state.nav) then
         let newState = State.update action state agent
         agent.Post(Update(newState))
         false
@@ -80,7 +91,7 @@ let rec keyLoop () =
         true
     | None ->
       Threading.Thread.Sleep(responsiveness)
-      state.nav = Nav.QUITING
+      Set.contains Nav.QUITING state.nav
 
   if not quit then
     keyLoop ()

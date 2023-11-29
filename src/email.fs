@@ -85,7 +85,7 @@ let read (agent: MailboxProcessor<Msg>) state =
 
   if emailBody <> null then
     agent.Post(ReadEmail(emailBody))
-    { state with nav = Nav.OPEN }
+    { state with nav = state.nav |> Set.add Nav.OPEN |> Set.remove Nav.LIST }
   else
     state
 
