@@ -43,8 +43,8 @@ let rec keyLoop () =
     | Some(action) ->
       agent.Post(Notice(""))
       if not (Set.contains Nav.QUITING state.nav) then
-        let newState = State.update action state agent
-        agent.Post(Update(newState))
+        State.update action state agent
+        agent.Post(Update)
         false
       else
         true

@@ -1,7 +1,7 @@
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module Himavan.Agent
 
-let rec create state =
+let rec create (state: State) =
   MailboxProcessor.Start(fun inbox ->
     let rec loop state =
       async {
@@ -9,7 +9,11 @@ let rec create state =
 
         let! msg = inbox.Receive()
         match msg with
-        | Update(state) ->
+        | SetCurrentEmail(index) ->
+          return! loop { state with currentEmail = index }
+        | SetCurrentFolder(index) ->
+          return! loop { state with currentFolder = index }
+        | Update ->
           if Set.contains Nav.LIST state.nav then
             Renderer.All.update state (Email.currentList state)
           return! loop state
@@ -19,6 +23,33 @@ let rec create state =
           return! loop state
         | ReadEmail(body) ->
           Renderer.Body.render body
+          return! loop {
+            state with
+              nav = state.nav
+              |> Set.add Nav.OPEN
+              |> Set.remove Nav.LIST
+          }
+        | Back ->
+          return! loop {
+            state with
+              nav = state.nav
+              |> Set.add Nav.LIST
+              |> Set.remove Nav.OPEN
+          }
+        | Select(index) ->
+          let emails = Email.currentList state
+          let currentId = emails[state.currentEmail].id
+          return! loop {
+            state with
+              selectedEmailIds =
+                Email.toggle currentId state.selectedEmailIds
+          }
+        | ShowAddress ->
+          let state =
+            if state.nav |> Set.contains Nav.ADDR then
+              { state with nav = state.nav |> Set.remove Nav.ADDR }
+            else
+              { state with nav = state.nav |> Set.add Nav.ADDR }
           return! loop state
         | Info(message) ->
           Renderer.StatusLine.info message

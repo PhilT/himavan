@@ -55,13 +55,18 @@ type State = {
 }
 
 type Msg =
-  | Update of State
+  | Update
+  | SetCurrentEmail of int
+  | SetCurrentFolder of int
   | Info of string
   | Notice of string
   | Error of string
   | Opening of string
   | ReadEmail of string
+  | Back
   | NewEmails of FolderName * Emails
+  | Select of int
+  | ShowAddress
   | Quit
   | Fetch of AsyncReplyChannel<State>
 

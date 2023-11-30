@@ -23,7 +23,6 @@ let fetchList (agent: MailboxProcessor<Msg>) state =
     let emails = MailService.list folder (state.windowHeight - FIRST_EMAIL_START_Y - 1)
     agent.Post(NewEmails(folder, emails))
   } |> Async.Start
-  state
 
 
 let runFuncAndFetchList (action: string -> string -> ProcessResult) (agent: MailboxProcessor<Msg>) state =
@@ -44,7 +43,6 @@ let runFuncAndFetchList (action: string -> string -> ProcessResult) (agent: Mail
       agent.Post(Error(jsonToString response.out))
 
   } |> Async.Start
-  state
 
 
 let addBody folder email (body: string) state =
@@ -85,9 +83,6 @@ let read (agent: MailboxProcessor<Msg>) state =
 
   if emailBody <> null then
     agent.Post(ReadEmail(emailBody))
-    { state with nav = state.nav |> Set.add Nav.OPEN |> Set.remove Nav.LIST }
-  else
-    state
 
 
 let toggle id emails =

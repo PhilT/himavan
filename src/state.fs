@@ -2,18 +2,26 @@
 module Himavan.State
 open System
 
-let update (action: string) (state: State) agent =
+let update (action: string) (state: State) (agent: MailboxProcessor<Msg>) =
   let keys = state.settings.keys
   let emails = Email.currentList state
 
   let actions = Map.ofList [
     "down", (
       (fun s -> s.currentEmail < emails.Length - 1),
-      (fun s -> { s with currentEmail = s.currentEmail + 1 })
+      (fun s -> agent.Post(SetCurrentEmail(s.currentEmail + 1)) )
     )
     "up", (
       (fun s -> s.currentEmail > 0),
-      (fun s -> { s with currentEmail = s.currentEmail - 1 })
+      (fun s -> agent.Post(SetCurrentEmail(s.currentEmail - 1)) )
+    )
+    "bottom", (
+      (fun s -> emails.Length > 0),
+      (fun s -> agent.Post(SetCurrentEmail(emails.Length - 1 )) )
+    )
+    "top", (
+      (fun s -> emails.Length > 0),
+      (fun s -> agent.Post(SetCurrentEmail(0)) )
     )
     "next_folder", (
       (fun s -> s.currentFolder < state.folders.Length - 1),
@@ -30,14 +38,6 @@ let update (action: string) (state: State) agent =
         |> Email.resetCurrent
         |> Email.fetchList agent
       )
-    )
-    "bottom", (
-      (fun s -> emails.Length > 0),
-      (fun s -> { s with currentEmail = emails.Length - 1 })
-    )
-    "top", (
-      (fun s -> emails.Length > 0),
-      (fun s -> { s with currentEmail = 0 })
     )
     "delete", (
       (fun s -> emails.Length > 0),
@@ -66,37 +66,21 @@ let update (action: string) (state: State) agent =
     )
     "back", (
       (fun s -> s.nav |> Set.contains Nav.OPEN),
-      (fun s ->
-        { s with
-            nav = s.nav
-            |> Set.add Nav.LIST
-            |> Set.remove Nav.OPEN
-        }
-      )
+      (fun s -> agent.Post(Back))
     )
     "select", (
       (fun s -> emails.Length > 0),
-      (fun s ->
-        { s with
-            selectedEmailIds =
-              Email.toggle emails[s.currentEmail].id s.selectedEmailIds
-        }
-      )
+      (fun s -> agent.Post(Select(s.currentEmail)))
     )
     "show_addr", (
       (fun s -> emails.Length > 0),
-      (fun s ->
-        if s.nav |> Set.contains Nav.ADDR then
-          { s with nav = s.nav |> Set.remove Nav.ADDR }
-        else
-          { s with nav = s.nav |> Set.add Nav.ADDR }
-      )
+      (fun s -> agent.Post(ShowAddress))
     )
     "quit", (
       (fun s -> true),
-      (fun s -> agent.Post(Quit); { s with nav = Set.ofList [Nav.QUITING] })
+      (fun s -> agent.Post(Quit))
     )
   ]
 
   let pred, action = actions[action]
-  if (pred state) then (action state) else state
+  if (pred state) then (action state)
