@@ -41,15 +41,24 @@ let update (action: string) (state: State) agent =
     )
     "delete", (
       (fun s -> emails.Length > 0),
-      (fun s -> Email.runFunc (fun id folder -> Mail.delete id folder) agent s)
+      (fun s ->
+        Email.runFuncAndFetchList (fun id folder ->
+          MailService.delete id folder) agent s
+      )
     )
     "archive", (
       (fun s -> emails.Length > 0),
-      (fun s -> Email.runFunc (fun id folder -> Mail.mv id folder "Archive") agent s)
+      (fun s ->
+        Email.runFuncAndFetchList (fun id folder ->
+          MailService.mv id folder "Archive") agent s
+      )
     )
     "spam", (
       (fun s -> emails.Length > 0),
-      (fun s -> Email.runFunc (fun id folder -> Mail.mv id folder "Spam") agent s)
+      (fun s ->
+        Email.runFuncAndFetchList (fun id folder ->
+          MailService.mv id folder "Spam") agent s
+      )
     )
     "read", (
       (fun s -> emails.Length > 0),
@@ -57,11 +66,22 @@ let update (action: string) (state: State) agent =
     )
     "back", (
       (fun s -> s.nav |> Set.contains Nav.OPEN),
-      (fun s -> { s with nav = s.nav |> Set.add Nav.LIST |> Set.remove Nav.OPEN })
+      (fun s ->
+        { s with
+            nav = s.nav
+            |> Set.add Nav.LIST
+            |> Set.remove Nav.OPEN
+        }
+      )
     )
     "select", (
       (fun s -> emails.Length > 0),
-      (fun s -> { s with selectedEmailIds = Email.toggle emails[s.currentEmail].id s.selectedEmailIds })
+      (fun s ->
+        { s with
+            selectedEmailIds =
+              Email.toggle emails[s.currentEmail].id s.selectedEmailIds
+        }
+      )
     )
     "show_addr", (
       (fun s -> emails.Length > 0),

@@ -1,4 +1,4 @@
-module Himavan.Mail
+module Himavan.MailService
 
 open System
 open System.Diagnostics

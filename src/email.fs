@@ -7,7 +7,7 @@ let jsonToString (str: string) = JsonSerializer.Deserialize<string> str
 let currentFolder state = state.folders[state.currentFolder]
 let currentList state =
   if state.emails.ContainsKey(currentFolder state) then
-    Mail.asList state.emails[currentFolder state] state.windowHeight
+    MailService.asList state.emails[currentFolder state] state.windowHeight
   else
     []
 
@@ -20,13 +20,13 @@ let resetCurrent state =
 let fetchList (agent: MailboxProcessor<Msg>) state =
   let folder = currentFolder state
   async {
-    let emails = Mail.list folder (state.windowHeight - FIRST_EMAIL_START_Y - 1)
+    let emails = MailService.list folder (state.windowHeight - FIRST_EMAIL_START_Y - 1)
     agent.Post(NewEmails(folder, emails))
   } |> Async.Start
   state
 
 
-let runFunc (action: string -> string -> ProcessResult) (agent: MailboxProcessor<Msg>) state =
+let runFuncAndFetchList (action: string -> string -> ProcessResult) (agent: MailboxProcessor<Msg>) state =
   let folder = currentFolder state
   let emails = currentList state
   let ids =
@@ -71,7 +71,7 @@ let read (agent: MailboxProcessor<Msg>) state =
   agent.Post(Opening(email.id))
   let state =
     if email.body = null then
-      let response = Mail.read email.id folder
+      let response = MailService.read email.id folder
       if response.exitCode = 0 then
         addBody folder email (jsonToString response.out) state
       else

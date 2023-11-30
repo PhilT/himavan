@@ -6,10 +6,11 @@ open System.IO
 Logger.write "Himvan" "Main" "Logging started"
 
 let folders =
-  match Mail.folders () with
+  match MailService.folders () with
   | Ok(folders) -> folders
   | Result.Error(msg) ->
-    printfn "Error fetching folders from mail account"
+    printfn "Error fetching folders from mail account."
+    printfn "Error message from mail agent:"
     printfn "%s" msg
     []
 
@@ -29,53 +30,10 @@ let currentFolder = Email.currentFolder state
 Renderer.All.setup ()
 Renderer.All.update state []
 
-let rec agent = MailboxProcessor.Start(fun inbox ->
-  let rec loop state =
-    async {
-      Con.moveTo 0 0
-
-      let! msg = inbox.Receive()
-      match msg with
-      | Update(state) ->
-        if Set.contains Nav.LIST state.nav then
-          Renderer.All.update state (Email.currentList state)
-        return! loop state
-      | Opening(emailId) ->
-        Renderer.StatusLine.notice $"Opening email {emailId}"
-        Renderer.Body.prepare ()
-        Logger.write "Main" "agent" "Done preparing"
-        return! loop state
-      | ReadEmail(body) ->
-        Logger.write "Main" "agent" "about to render"
-        Renderer.Body.render body
-        return! loop state
-      | Info(message) ->
-        Renderer.StatusLine.info message
-        return! loop state
-      | Notice(message) ->
-        Renderer.StatusLine.notice message
-        return! loop state
-      | Error(message) ->
-        Renderer.StatusLine.error message
-        return! loop state
-      | NewEmails(folder, emails) ->
-        let newState = { state with emails = Map.add folder emails state.emails }
-        Renderer.All.update newState (Email.currentList newState)
-        return! loop newState
-      | Quit ->
-        Renderer.All.teardown ()
-        return! loop { state with nav = Set.ofList [Nav.QUITING] }
-      | Fetch(channel) ->
-        channel.Reply(state)
-        return! loop state
-    }
-
-  loop state
-)
-
 let responsiveness = Int32.Parse state.settings.general["response_time"]
 
 // Get the first email folder
+let agent = Agent.create state
 Email.fetchList agent state |> ignore
 
 let rec keyLoop () =
@@ -83,6 +41,7 @@ let rec keyLoop () =
   let quit =
     match Input.wait state.settings.keys responsiveness with
     | Some(action) ->
+      agent.Post(Notice(""))
       if not (Set.contains Nav.QUITING state.nav) then
         let newState = State.update action state agent
         agent.Post(Update(newState))

@@ -15,7 +15,7 @@
     <Compile Include="path.fs" />
     <Compile Include="settings.fs" />
     <Compile Include="measure.fs" />
-    <Compile Include="mail.fs" />
+    <Compile Include="mail_service.fs" />
     <Compile Include="email.fs" />
     <Compile Include="state.fs" />
 
@@ -29,6 +29,7 @@
     <Compile Include="renderer/body.fs" />
     <Compile Include="renderer/all.fs" />
 
+    <Compile Include="agent.fs" />
     <Compile Include="main.fs" />
   </ItemGroup>
 
