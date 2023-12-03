@@ -17,6 +17,7 @@
     <Compile Include="measure.fs" />
     <Compile Include="mail_service.fs" />
     <Compile Include="email.fs" />
+    <Compile Include="nav.fs" />
     <Compile Include="state.fs" />
 
     <!-- Only the agent should know about the renderers -->

@@ -22,7 +22,7 @@ let state = {
   currentEmail = 0
   selectedEmailIds = Set.empty
   windowHeight = Con.height ()
-  nav = Set.ofList [Nav.LIST]
+  nav = Nav.create ()
 }
 
 let currentFolder = Email.currentFolder state
@@ -42,7 +42,7 @@ let rec keyLoop () =
     match Input.wait state.settings.keys responsiveness with
     | Some(action) ->
       agent.Post(Notice(""))
-      if not (Set.contains Nav.QUITING state.nav) then
+      if not (Nav.isQuiting state) then
         State.update action state agent
         agent.Post(Update)
         false
@@ -50,7 +50,7 @@ let rec keyLoop () =
         true
     | None ->
       Threading.Thread.Sleep(responsiveness)
-      Set.contains Nav.QUITING state.nav
+      Nav.isQuiting state
 
   if not quit then
     keyLoop ()

@@ -12,17 +12,13 @@ let rec create (state: State) =
         | SetCurrentEmail(index) ->
           return! loop { state with currentEmail = index }
         | SetCurrentFolder(index, agent) ->
-          let newState = {
-            state with
-              currentFolder = index
-              nav = state.nav
-              |> Set.add Nav.LIST
-              |> Set.remove Nav.OPEN
-          }
+          let newState =
+            { state with currentFolder = index }
+            |> Nav.list
           Email.fetchList agent newState
           return! loop newState
         | Update ->
-          if Set.contains Nav.LIST state.nav then
+          if state |> Nav.onList then
             Renderer.All.update state (Email.currentList state)
           return! loop state
         | Opening(emailId) ->
@@ -31,19 +27,9 @@ let rec create (state: State) =
           return! loop state
         | ReadEmail(body) ->
           Renderer.Body.render body
-          return! loop {
-            state with
-              nav = state.nav
-              |> Set.add Nav.OPEN
-              |> Set.remove Nav.LIST
-          }
+          return! loop (state |> Nav.read)
         | Back ->
-          return! loop {
-            state with
-              nav = state.nav
-              |> Set.add Nav.LIST
-              |> Set.remove Nav.OPEN
-          }
+          return! loop (state |> Nav.list)
         | Select(index) ->
           let emails = Email.currentList state
           let currentId = emails[state.currentEmail].id
@@ -54,10 +40,10 @@ let rec create (state: State) =
           }
         | ShowAddress ->
           let state =
-            if state.nav |> Set.contains Nav.ADDR then
-              { state with nav = state.nav |> Set.remove Nav.ADDR }
+            if Nav.isShowingAddress state then
+              Nav.hideAddress state
             else
-              { state with nav = state.nav |> Set.add Nav.ADDR }
+              Nav.showAddress state
           return! loop state
         | Info(message) ->
           Renderer.StatusLine.info message

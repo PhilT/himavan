@@ -57,7 +57,7 @@ let update (action: string) (state: State) (agent: MailboxProcessor<Msg>) =
       (fun s -> Email.read agent s)
     )
     "back", (
-      (fun s -> s.nav |> Set.contains Nav.OPEN),
+      (fun s -> Nav.isReading s),
       (fun s -> agent.Post(Back))
     )
     "select", (
