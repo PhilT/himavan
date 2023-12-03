@@ -4,13 +4,13 @@ open System
 
 open Himavan
 
-
 let FolderColors = {
   selected = Color.BLACK, Color.BLUE
   normal = Color.BLUE, Color.DEFAULT
 }
 
 let render selected (tabs: string list) =
+  Con.clearLine FOLDERS_START_Y
   Con.moveTo 0 FOLDERS_START_Y
 
   tabs
@@ -23,5 +23,4 @@ let render selected (tabs: string list) =
 
     Con.write $" {tab} " (Con.normalStyle fgColor bgColor)
   )
-
 

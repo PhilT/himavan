@@ -11,8 +11,16 @@ let rec create (state: State) =
         match msg with
         | SetCurrentEmail(index) ->
           return! loop { state with currentEmail = index }
-        | SetCurrentFolder(index) ->
-          return! loop { state with currentFolder = index }
+        | SetCurrentFolder(index, agent) ->
+          let newState = {
+            state with
+              currentFolder = index
+              nav = state.nav
+              |> Set.add Nav.LIST
+              |> Set.remove Nav.OPEN
+          }
+          Email.fetchList agent newState
+          return! loop newState
         | Update ->
           if Set.contains Nav.LIST state.nav then
             Renderer.All.update state (Email.currentList state)
@@ -61,7 +69,9 @@ let rec create (state: State) =
           Renderer.StatusLine.error message
           return! loop state
         | NewEmails(folder, emails) ->
-          let newState = { state with emails = Map.add folder emails state.emails }
+          let newState =
+            { state with emails = Map.add folder emails state.emails }
+            |> Email.resetCurrent
           Renderer.All.update newState (Email.currentList newState)
           return! loop newState
         | Quit ->

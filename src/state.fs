@@ -25,19 +25,11 @@ let update (action: string) (state: State) (agent: MailboxProcessor<Msg>) =
     )
     "next_folder", (
       (fun s -> s.currentFolder < state.folders.Length - 1),
-      (fun s ->
-        { s with currentFolder = s.currentFolder + 1 }
-        |> Email.resetCurrent
-        |> Email.fetchList agent
-      )
+      (fun s -> agent.Post(SetCurrentFolder(s.currentFolder + 1, agent)) )
     )
     "prev_folder", (
       (fun s -> s.currentFolder > 0),
-      (fun s ->
-        { s with currentFolder = s.currentFolder - 1 }
-        |> Email.resetCurrent
-        |> Email.fetchList agent
-      )
+      (fun s -> agent.Post(SetCurrentFolder(s.currentFolder - 1, agent)) )
     )
     "delete", (
       (fun s -> emails.Length > 0),

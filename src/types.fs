@@ -57,7 +57,7 @@ type State = {
 type Msg =
   | Update
   | SetCurrentEmail of int
-  | SetCurrentFolder of int
+  | SetCurrentFolder of int * MailboxProcessor<Msg>
   | Info of string
   | Notice of string
   | Error of string
