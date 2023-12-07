@@ -11,3 +11,5 @@ let FIRST_EMAIL_START_Y = 3
 
 let SEPARATOR = "│"
 
+let HIMALAYA_DRAFT_PATH = "/tmp/himalaya-draft.eml"
+

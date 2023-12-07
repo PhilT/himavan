@@ -39,7 +39,8 @@ pub fn mv(id: &str, src: &str, dest: &str) -> (ExitStatus, String) {
 }
 
 pub fn write() -> Result<String, String> {
-  let (status, response) = run(MAIL_PROG, "template", "", vec![], &["write"]);
+  let (status, response) =
+    run(MAIL_PROG, "template", "", vec![], &["write"]);
   if status.success() {
     std::fs::write(HIMALAYA_DRAFT_PATH, response)
       // TODO: Proper error handling (don't panic!)

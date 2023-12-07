@@ -56,6 +56,10 @@ let update (action: string) (state: State) (agent: MailboxProcessor<Msg>) =
       (fun s -> emails.Length > 0),
       (fun s -> Email.read agent s)
     )
+    "write", (
+      (fun s -> true),
+      (fun s -> agent.Post(WriteEmail))
+    )
     "back", (
       (fun s -> Nav.isReading s),
       (fun s -> agent.Post(Back))

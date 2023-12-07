@@ -25,6 +25,12 @@ let rec create (state: State) =
           Renderer.StatusLine.notice $"Opening email {emailId}"
           Renderer.Body.prepare ()
           return! loop state
+        | WriteEmail ->
+          Con.teardown ()
+          MailService.write ()
+          // if success then write to HIMALAYA_DRAFT_PATH
+          // then spawn text editor
+          // if zero returned then send email using HIMALAYA_DRAFT_PATH
         | ReadEmail(body) ->
           Renderer.Body.render body
           return! loop (state |> Nav.read)

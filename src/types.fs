@@ -63,6 +63,7 @@ type Msg =
   | Error of string
   | Opening of string
   | ReadEmail of string
+  | WriteEmail
   | Back
   | NewEmails of FolderName * Emails
   | Select of int
